@@ -1,0 +1,25 @@
+#include "GraphicsSystem.h"
+#include "Renderer2DSystem.h"
+#include "GUISystem.h"
+
+#include "PekanLogger.h"
+
+#include "GleamHouse_Application.h"
+using Demo::GleamHouse_Application;
+
+int main(void)
+{
+    PEKAN_INCLUDE_SUBSYSTEM_GRAPHICS;
+    PEKAN_INCLUDE_SUBSYSTEM_RENDERER2D;
+    PEKAN_INCLUDE_SUBSYSTEM_GUI;
+
+    GleamHouse_Application application;
+    if (!application.init())
+    {
+        PK_LOG_ERROR("Application failed to initialize.", "Pekan");
+        return -1;
+    }
+    application.run();
+
+    return 0;
+}
