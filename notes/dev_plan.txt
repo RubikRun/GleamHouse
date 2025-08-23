@@ -1,0 +1,44 @@
+Here's the initial development plan for Gleam House:
+
+Gleam House v1.0:
+
+1. Create an infinite grid with a chess pattern, that will be world's "floor"
+2. Create player's character
+    2.1. Render a small sprite
+    2.2. Allow player to move it with WASD
+    2.3. Make camera follow player's character automatically with a smooth motion.
+         Disable camera controller, so that player can't move camera freely.
+    2.4. Rotate sprite so that it always faces the mouse
+3. Create walls
+    3.1. Each wall is rendered as a sprite
+    3.2. A wall never moves, in world space
+    3.3. Player can't pass through walls
+    3.4. Assemble many walls into a labyrinth with "rooms" one after the other,
+         connected with complex tunnels.
+         There should be a final room, where level will end.
+4. Create a post-processing shader with a uniform array of light positions,
+    together with a uniform array of light intensities, and a uniform array of light colors.
+    This shader will apply lighting on top of what is already rendered.
+    (NOTE: not sure how to do this, because Pekan doesn't support post-processing shaders)
+5. Create a star
+    5.1. A big star will mark level's ending. It will be in the center of the final room
+    5.2. A star will be passed to the post-processing shader as a light with big intensity,
+         so that it shines really brightly with a big radius, and a white-ish color.
+    5.3. When player goes inside a star, the star's intensity will grow
+         such that when player is sufficiently close to the center everything will be white.
+         When everything becomes white, the level is complete
+         and a text will appear, fading in, staying for 8s and fading out, saying
+            Completed Level 1!
+        (NOTE: Pekan doesn't support text rendering but we can have an image with the text)
+6. Create torches
+    6.1. A torch will be rendered as a thin vertical rectangle,                                        /\
+         together with a bunch of lines above it, forming a rhombus shape.                            /  \
+         The lines will be random shades of red/orange,                                               \  /
+         changing every 1/N seconds, looking like fire.                                                \/
+    6.2. A torch can be picked up and dropped down by pressing E.                                     ----
+         It can't be inside a wall, so when player drops it down it will never go inside a wall.      |  |
+    6.3. A torch will be passed to the post-processing shader as a light                              |  |
+         with small intensity and a red-ish color.                                                    |  |
+    6.4. Player will automatically drop the torch he's holding if he goes through a narrow tunnel.    |  |
+         It'll be easiest to implement this by having a hardcoded list of areas (rectangles),         ----
+         one per level, where player is NOT allowed to have a torch.
