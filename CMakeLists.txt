@@ -9,6 +9,8 @@ set(CMAKE_CONFIGURATION_TYPES "Debug;Release")
 # Create project GleamHouse
 project(GleamHouse)
 
+option(GLEAMHOUSE_WITH_DEBUG_GRAPHICS "Enable debug graphics in Gleam House" OFF)
+
 # Add Pekan subdirectory, without demo projects
 set(WITH_DEMO_PROJECTS OFF)
 add_subdirectory(dep/Pekan)
@@ -28,6 +30,8 @@ add_executable(GleamHouse
     src/GleamHouse_Scene.cpp
     src/Floor.h
     src/Floor.cpp
+    src/Player.h
+    src/Player.cpp
 )
 
 # Set link libraries for GleamHouse
@@ -36,6 +40,13 @@ target_link_libraries(GleamHouse PRIVATE
     Renderer2D
     GUI
     Tools
+)
+
+target_compile_definitions(GleamHouse PRIVATE
+    # Set GLEAMHOUSE_ROOT_DIR definition to be the path to current source directory
+    GLEAMHOUSE_ROOT_DIR="${CMAKE_CURRENT_SOURCE_DIR}"
+    # Set GLEAMHOUSE_WITH_DEBUG_GRAPHICS definition to be 0 or 1 depending on the on/off state of the option
+    GLEAMHOUSE_WITH_DEBUG_GRAPHICS=$<IF:$<BOOL:${GLEAMHOUSE_WITH_DEBUG_GRAPHICS}>,1,0>
 )
 
 # Set GleamHouse to be the startup project by default

@@ -45,3 +45,31 @@ It's not infinite, but we can make it as big as we want to fit the whole level.
 
 Done.
 }
+
+{
+Next thing to do is
+    2. Create player's character
+        2.1. Render a small sprite
+        ...
+
+First, create a texture to be used for player's sprite
+    src/resources/GleamHouse_player.png
+
+Then, let's create a new class
+    class Player
+in new files
+    Player.h
+    Player.cpp
+and make it render a sprite using the image as a texture.
+
+    {
+    Added this CMake option
+        GLEAMHOUSE_WITH_DEBUG_GRAPHICS
+    to be able to easily enable and disable debug graphics.
+    For now the only debug graphics that we have is the tiny red square marking coordinate system's center.
+    I don't want to see it by default so this new option will be disabled by default.
+    }
+
+Looks good.
+Done.
+}

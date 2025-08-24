@@ -23,15 +23,26 @@ namespace GleamHouse
 		RenderState::enableBlending();
 		RenderState::setBlendFunction(BlendFactor::SrcAlpha, BlendFactor::OneMinusSrcAlpha);
 
-		m_centerSquare.create(0.2f, 0.2f);
-		m_centerSquare.setColor({ 1.0f, 0.0f, 0.0f, 1.0f });
-
 		// Create floor
 		if (!m_floor.create())
 		{
 			PK_LOG_ERROR("Failed to create floor.", "GleamHouse");
 			return false;
 		}
+
+		if (!m_player.create())
+		{
+			PK_LOG_ERROR("Failed to create player.", "GleamHouse");
+			return false;
+		}
+
+#if GLEAMHOUSE_WITH_DEBUG_GRAPHICS
+		// Create center square
+		{
+			m_centerSquare.create(0.2f, 0.2f);
+			m_centerSquare.setColor({ 1.0f, 0.0f, 0.0f, 1.0f });
+		}
+#endif
 
 		createCamera();
 
@@ -48,14 +59,20 @@ namespace GleamHouse
         RenderCommands::clear();
 
 		m_floor.render();
+		m_player.render();
+#if GLEAMHOUSE_WITH_DEBUG_GRAPHICS
 		m_centerSquare.render();
+#endif
 
         Renderer2DSystem::endFrame();
 	}
 
 	void GleamHouse_Scene::exit()
 	{
+#if GLEAMHOUSE_WITH_DEBUG_GRAPHICS
 		m_centerSquare.destroy();
+#endif
+		m_player.destroy();
 		m_floor.destroy();
 		m_camera->destroy();
 	}

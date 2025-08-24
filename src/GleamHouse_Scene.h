@@ -1,9 +1,11 @@
 #pragma once
 
+#include "Floor.h"
+#include "Player.h"
+
 #include "Layer.h"
 #include "RectangleShape.h"
 #include "Camera2D.h"
-#include "Floor.h"
 
 namespace GleamHouse
 {
@@ -30,10 +32,14 @@ namespace GleamHouse
 
 	private: /* variables */
 
+		Floor m_floor;
+
+		Player m_player;
+
+#if GLEAMHOUSE_WITH_DEBUG_GRAPHICS
 		// A small square to mark coordinate system's center
 		Pekan::Renderer2D::RectangleShape m_centerSquare;
-
-		Floor m_floor;
+#endif
 
 		Pekan::Renderer2D::Camera2D_Ptr m_camera;
 	};
