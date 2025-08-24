@@ -14,7 +14,9 @@ using namespace Pekan;
 namespace GleamHouse
 {
 
-	const float CAMERA_SCALE = 10.0f;
+	static constexpr float CAMERA_SCALE = 10.0f;
+	// Interpolation factor to be used for camera's movement
+	static constexpr float CAMERA_LERP_FACTOR = 0.05f;
 
     bool GleamHouse_Scene::init()
 	{
@@ -52,6 +54,7 @@ namespace GleamHouse
 	void GleamHouse_Scene::update(double dt)
 	{
 		m_player.update();
+		updateCamera();
 	}
 
 	void GleamHouse_Scene::render() const
@@ -84,8 +87,17 @@ namespace GleamHouse
 		m_camera->create(CAMERA_SCALE);
 
 		Renderer2DSystem::setCamera(m_camera);
-		PekanTools::enableCameraController2D(m_camera);
-		PekanTools::setCameraController2DZoomSpeed(1.1f);
 	}
+
+	void GleamHouse_Scene::updateCamera()
+	{
+		PK_ASSERT_QUICK(m_camera != nullptr);
+
+		const glm::vec2 playerPos = m_player.getPosition();
+		const glm::vec2 cameraPos = m_camera->getPosition();
+		const glm::vec2 newCameraPos = cameraPos + (playerPos - cameraPos) * CAMERA_LERP_FACTOR;
+		m_camera->setPosition(newCameraPos);
+	}
+
 
 } // namespace GleamHouse

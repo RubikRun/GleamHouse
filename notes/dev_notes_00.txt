@@ -99,3 +99,33 @@ That's it.
 Player can be moved with WASD now. It works.
 Done.
 }
+
+{
+Next thing to do is
+    2. Create player's character
+        ...
+        2.3. Make camera follow player's character automatically with a smooth motion.
+            Disable camera controller, so that player can't move camera freely.
+
+Let's create a new function in GleamHouse_Scene
+    void updateCamera()
+where we'll update camera's position each frame such that it follows the player.
+The way we'll do this is to always move the camera some constant fraction of the distance to the player.
+More specifically, let that factor be
+    static constexpr float CAMERA_LERP_FACTOR = 0.05f;
+and let's get player's position and camera's position
+    const glm::vec2 playerPos = m_player.getPosition();
+    const glm::vec2 cameraPos = m_camera->getPosition();
+Then, the new camera position will be
+    const glm::vec2 newCameraPos = cameraPos + (playerPos - cameraPos) * CAMERA_LERP_FACTOR;
+Basically adding this fraction CAMERA_LERP_FACTOR of the vector
+    playerPos - cameraPos
+to the original camera position
+    cameraPos
+
+Don't forget to disable camera controller so that player can't move camera with the mouse.
+
+That's it.
+Now the camera follows the player and moves smoothly.
+Done.
+}

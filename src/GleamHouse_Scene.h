@@ -29,6 +29,7 @@ namespace GleamHouse
 	private: /* functions */
 
 		void createCamera();
+		void updateCamera();
 
 	private: /* variables */
 

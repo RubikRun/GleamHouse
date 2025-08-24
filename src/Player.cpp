@@ -13,11 +13,11 @@ namespace GleamHouse
 {
 
 	// Filepath of the image to be used for player's sprite
-	static const char* IMAGE_FILEPATH = GLEAMHOUSE_ROOT_DIR "/src/resources/GleamHouse_player.png";
+	static constexpr char* IMAGE_FILEPATH = GLEAMHOUSE_ROOT_DIR "/src/resources/GleamHouse_player.png";
 	// Player's size, in world space
-	static const float SIZE = 1.0f;
+	static constexpr float SIZE = 1.0f;
 	// Player's speed, in world space, per frame
-	static const float SPEED = 0.05f;
+	static constexpr float SPEED = 0.05f;
 
 	bool Player::create()
 	{

@@ -22,6 +22,9 @@ namespace GleamHouse
 		void render() const;
 		void update();
 
+		// Returns player's position, in world space
+		glm::vec2 getPosition() const { return m_sprite.getPosition(); }
+
 	private: /* variables */
 
 		// Underlying sprite, used to render player's character

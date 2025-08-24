@@ -8,16 +8,16 @@ namespace GleamHouse
 {
 
 	// Size of a single tile, in world space
-	static const float FLOOR_TILE_SIZE = 1.0f;
+	static constexpr float FLOOR_TILE_SIZE = 1.0f;
 	// Number of tiles to be rendered
 	//
 	// NOTE: This number has to be even!
-	static const int FLOOR_TILES_COUNT = 100;
+	static constexpr int FLOOR_TILES_COUNT = 100;
 
 	// Exact color of "white" tiles
-	static const glm::vec4 COLOR_WHITE = { 0.7f, 0.7f, 0.7f, 1.0f };
+	static constexpr glm::vec4 COLOR_WHITE = { 0.7f, 0.7f, 0.7f, 1.0f };
 	// Exact color of "black" tiles
-	static const glm::vec4 COLOR_BLACK = { 0.1f, 0.1f, 0.1f, 1.0f };
+	static constexpr glm::vec4 COLOR_BLACK = { 0.1f, 0.1f, 0.1f, 1.0f };
 
 	bool Floor::create()
 	{
