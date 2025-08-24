@@ -26,6 +26,7 @@ namespace GleamHouse
 		ApplicationProperties props;
 		props.windowProperties.width = 1600;
 		props.windowProperties.height = 900;
+		props.fps = 60.0;
 		props.numberOfSamples = 16;
 		props.windowProperties.title = getName();
 		return props;

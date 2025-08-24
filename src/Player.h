@@ -20,6 +20,7 @@ namespace GleamHouse
 		void destroy();
 
 		void render() const;
+		void update();
 
 	private: /* variables */
 

@@ -51,6 +51,7 @@ namespace GleamHouse
 
 	void GleamHouse_Scene::update(double dt)
 	{
+		m_player.update();
 	}
 
 	void GleamHouse_Scene::render() const

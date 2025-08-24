@@ -73,3 +73,29 @@ and make it render a sprite using the image as a texture.
 Looks good.
 Done.
 }
+
+{
+Next thing to do is
+    2. Create player's character
+        ...
+        2.2. Allow player to move it with WASD
+        ...
+
+(Created a file todo.txt with TO-DO items)
+
+Created an
+    update()
+function in class Player.
+Inside of it we'll check if W/A/S/D key is pressed and move the sprite up/left/down/right.
+    if (PekanEngine::isKeyPressed(KeyCode::KEY_W))
+    {
+        m_sprite.move({ 0.0f, SPEED });
+    }
+with some constant speed
+    static const float SPEED = 0.05f;
+In the future it'd be good to make this speed be frame-independent using dt - created a TO-DO item for this.
+
+That's it.
+Player can be moved with WASD now. It works.
+Done.
+}
