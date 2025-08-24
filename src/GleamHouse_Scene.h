@@ -3,10 +3,9 @@
 #include "Layer.h"
 #include "RectangleShape.h"
 #include "Camera2D.h"
+#include "Floor.h"
 
-#include "GleamHouse_GUIWindow.h"
-
-namespace Demo
+namespace GleamHouse
 {
 
 	class GleamHouse_Scene : public Pekan::Layer
@@ -22,9 +21,6 @@ namespace Demo
 		void render() const override;
 
 		void exit() override;
-		
-		// Attaches a GUI window for controlling background's color
-		void attachGUIWindow(const std::shared_ptr<const GleamHouse_GUIWindow>& guiWindow) { m_guiWindow = guiWindow; }
 
 		inline std::string getLayerName() const override { return "scene_layer"; }
 
@@ -37,10 +33,9 @@ namespace Demo
 		// A small square to mark coordinate system's center
 		Pekan::Renderer2D::RectangleShape m_centerSquare;
 
-		Pekan::Renderer2D::Camera2D_Ptr m_camera;
+		Floor m_floor;
 
-		// GUI window for controlling background's color
-		std::shared_ptr<const GleamHouse_GUIWindow> m_guiWindow;
+		Pekan::Renderer2D::Camera2D_Ptr m_camera;
 	};
 
-} // namespace Demo
+} // namespace GleamHouse

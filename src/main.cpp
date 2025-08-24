@@ -5,7 +5,7 @@
 #include "PekanLogger.h"
 
 #include "GleamHouse_Application.h"
-using Demo::GleamHouse_Application;
+using GleamHouse::GleamHouse_Application;
 
 int main(void)
 {

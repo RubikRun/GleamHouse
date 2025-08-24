@@ -2,7 +2,7 @@ Here's the initial development plan for Gleam House:
 
 Gleam House v1.0:
 
-1. Create an infinite grid with a chess pattern, that will be world's "floor"
+1. Create an infinite grid with a checkered pattern, that will be world's "floor"
 2. Create player's character
     2.1. Render a small sprite
     2.2. Allow player to move it with WASD

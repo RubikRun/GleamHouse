@@ -1,0 +1,47 @@
+----------
+23.08.2025
+----------
+
+Let's begin development of Gleam House!
+
+{
+First thing to do is:
+    1. Create an infinite grid with a checkered pattern, that will be world's "floor"
+(refer to dev_plan.txt)
+
+Let's create a class
+    class Floor
+in new files
+    Floor.h
+    Floor.cpp
+
+    {
+    Now I noticed that all our source code is in
+        namespace Demo
+    because I copied the setup from one of Pekan's demos.
+    Let's just replace
+        namespace Demo
+    with
+        namespace GleamHouse
+    everywhere.
+    }
+
+By the way, we don't need the GUI window at all. Let's remove it. Done.
+
+Found a bug in Pekan causing the second RectangleShape rendered in a Floor
+to take the color of the first RectangleShape rendered,
+if the floor is too big (81x81 or more).
+Fixed it in Pekan.
+Updated the Pekan dependency here.
+Now it works.
+
+----------
+24.08.2025
+----------
+
+Floor is ready.
+We have a grid with a checkered pattern.
+It's not infinite, but we can make it as big as we want to fit the whole level.
+
+Done.
+}

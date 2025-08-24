@@ -2,7 +2,7 @@
 
 #include "PekanApplication.h"
 
-namespace Demo
+namespace GleamHouse
 {
 
 	class GleamHouse_Application : public Pekan::PekanApplication
@@ -12,4 +12,4 @@ namespace Demo
 		Pekan::ApplicationProperties getProperties() const override;
 	};
 
-} // namespace Demo
+} // namespace GleamHouse

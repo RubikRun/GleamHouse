@@ -1,7 +1,6 @@
 #include "GleamHouse_Application.h"
 
 #include "GleamHouse_Scene.h"
-#include "GleamHouse_GUIWindow.h"
 
 #include "PekanEngine.h"
 using Pekan::PekanEngine;
@@ -9,20 +8,15 @@ using Pekan::ApplicationProperties;
 using Pekan::WindowProperties;
 using Pekan::LayerStack;
 
-namespace Demo
+namespace GleamHouse
 {
 
 	bool GleamHouse_Application::_fillLayerStack(LayerStack& layerStack)
 	{
-		// Create demo scene and demo GUI window
+		// Create demo scene
 		std::shared_ptr<GleamHouse_Scene> demoScene = std::make_shared<GleamHouse_Scene>(this);
-		std::shared_ptr<GleamHouse_GUIWindow> demoGuiWindow = std::make_shared<GleamHouse_GUIWindow>(this);
-		// Attach demo GUI window to demo scene
-		demoScene->attachGUIWindow(demoGuiWindow);
-
-		// Add scene and GUI window to application's layers
+		// Add scene to application's layers
 		layerStack.pushLayer(demoScene);
-		layerStack.pushLayer(demoGuiWindow);
 
 		return true;
 	}
@@ -37,4 +31,4 @@ namespace Demo
 		return props;
 	}
 
-} // namespace Demo
+} // namespace GleamHouse

@@ -11,23 +11,27 @@ using namespace Pekan::Renderer2D;
 using namespace Pekan::Tools;
 using namespace Pekan;
 
-namespace Demo
+namespace GleamHouse
 {
 
 	const float CAMERA_SCALE = 10.0f;
 
     bool GleamHouse_Scene::init()
 	{
-        if (m_guiWindow == nullptr)
-        {
-            PK_LOG_ERROR("There is no GUI window attached to GleamHouse_Scene.", "GleamHouse");
-            return false;
-        }
-
         RenderState::enableMultisampleAntiAliasing();
+		// Enable and configure blending
+		RenderState::enableBlending();
+		RenderState::setBlendFunction(BlendFactor::SrcAlpha, BlendFactor::OneMinusSrcAlpha);
 
-		m_centerSquare.create(1.0f, 1.0f);
-		m_centerSquare.setColor({ 0.0f, 0.0f, 0.0f, 1.0f });
+		m_centerSquare.create(0.2f, 0.2f);
+		m_centerSquare.setColor({ 1.0f, 0.0f, 0.0f, 1.0f });
+
+		// Create floor
+		if (!m_floor.create())
+		{
+			PK_LOG_ERROR("Failed to create floor.", "GleamHouse");
+			return false;
+		}
 
 		createCamera();
 
@@ -41,11 +45,9 @@ namespace Demo
 	void GleamHouse_Scene::render() const
 	{
         Renderer2DSystem::beginFrame();
-
-        glm::vec4 clearColor = m_guiWindow->getBackgroundColor();
-        RenderState::setBackgroundColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
         RenderCommands::clear();
 
+		m_floor.render();
 		m_centerSquare.render();
 
         Renderer2DSystem::endFrame();
@@ -54,6 +56,7 @@ namespace Demo
 	void GleamHouse_Scene::exit()
 	{
 		m_centerSquare.destroy();
+		m_floor.destroy();
 		m_camera->destroy();
 	}
 
@@ -67,4 +70,4 @@ namespace Demo
 		PekanTools::setCameraController2DZoomSpeed(1.1f);
 	}
 
-} // namespace Demo
+} // namespace GleamHouse
