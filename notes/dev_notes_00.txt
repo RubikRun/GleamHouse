@@ -106,6 +106,7 @@ Next thing to do is
         ...
         2.3. Make camera follow player's character automatically with a smooth motion.
             Disable camera controller, so that player can't move camera freely.
+        ...
 
 Let's create a new function in GleamHouse_Scene
     void updateCamera()
@@ -127,5 +128,35 @@ Don't forget to disable camera controller so that player can't move camera with 
 
 That's it.
 Now the camera follows the player and moves smoothly.
+Done.
+}
+
+{
+Next thing to do is
+    2. Create player's character
+        ...
+        2.4. Rotate sprite so that it always faces the mouse
+
+This one is easy, we just need the
+    std::atan2(...)
+function, which returns the angle that a 2D vector makes with the positive X-axis.
+Inside of Player's
+    update()
+function we need to, first, get mouse position, in world space.
+Be careful, THIS is the Pekan function that returns mouse position in world space:
+    Renderer2DSystem::getMousePosition()
+This one is NOT
+    PekanEngine::getMousePosition()
+It returns mouse position in window space.
+Then, after we have the mouse position
+    const glm::vec2 mousePosition = Renderer2DSystem::getMousePosition();
+we can calculate the vector from player to mouse
+    const glm::vec2 playerToMouseVec = mousePosition - getPosition();
+and use the atan2 function to calculate the angle of this vector
+    const float angle = std::atan2f(playerToMouseVec.x, playerToMouseVec.y);
+and, finally set the rotation of player's sprite to be this angle, so that it points towards the mouse
+    m_sprite.setRotation(angle);
+
+It works!
 Done.
 }

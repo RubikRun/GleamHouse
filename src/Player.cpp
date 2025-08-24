@@ -4,6 +4,7 @@
 #include "Texture2D.h"
 #include "PekanLogger.h"
 #include "PekanEngine.h"
+#include "Renderer2DSystem.h"
 
 using namespace Pekan;
 using namespace Pekan::Graphics;
@@ -63,6 +64,18 @@ namespace GleamHouse
 		if (PekanEngine::isKeyPressed(KeyCode::KEY_D))
 		{
 			m_sprite.move({ SPEED, 0.0f });
+		}
+
+		// Rotate sprite to point towards the mouse
+		{
+			// Get mouse position, in world space
+			const glm::vec2 mousePosition = Renderer2DSystem::getMousePosition();
+			// Calculate vector from player to mouse
+			const glm::vec2 playerToMouseVec = mousePosition - getPosition();
+			// Calculate the angle that this vector makes with the positive X-axis
+			const float angle = std::atan2f(playerToMouseVec.x, playerToMouseVec.y);
+			// Set sprite's rotation to be that angle
+			m_sprite.setRotation(angle);
 		}
 	}
 
