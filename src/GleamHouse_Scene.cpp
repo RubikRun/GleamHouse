@@ -18,6 +18,25 @@ namespace GleamHouse
 	// Interpolation factor to be used for camera's movement
 	static constexpr float CAMERA_LERP_FACTOR = 0.05f;
 
+	// Bottom-left positions of walls in level 1
+	static constexpr glm::vec2 WALLS_BOTTOM_LEFT_POSITIONS[GleamHouse_Scene::WALLS_COUNT] =
+	{
+		{ -5.0f, 5.0f },
+		{ -5.0f, -100.0f },
+		{ -100.0f, -100.0f },
+		{ 5.0f, -100.0f },
+		{ 5.0f, 1.0f }
+	};
+	// Top-right positions of walls in level 1
+	static constexpr glm::vec2 WALLS_TOP_RIGHT_POSITIONS[GleamHouse_Scene::WALLS_COUNT] =
+	{
+		{ 5.0f, 100.0f },
+		{ 5.0f, -5.0f },
+		{ -5.0f, 100.0f },
+		{ 7.0f, -1.0f },
+		{ 7.0f, 100.0f }
+	};
+
     bool GleamHouse_Scene::init()
 	{
         RenderState::enableMultisampleAntiAliasing();
@@ -31,11 +50,20 @@ namespace GleamHouse
 			PK_LOG_ERROR("Failed to create floor.", "GleamHouse");
 			return false;
 		}
-
+		// Create player
 		if (!m_player.create())
 		{
 			PK_LOG_ERROR("Failed to create player.", "GleamHouse");
 			return false;
+		}
+		// Create walls
+		for (int i = 0; i < WALLS_COUNT; i++)
+		{
+			if (!m_walls[i].create(WALLS_BOTTOM_LEFT_POSITIONS[i], WALLS_TOP_RIGHT_POSITIONS[i]))
+			{
+				PK_LOG_ERROR("Failed to create a wall.", "GleamHouse");
+				return false;
+			}
 		}
 
 #if GLEAMHOUSE_WITH_DEBUG_GRAPHICS
@@ -64,6 +92,10 @@ namespace GleamHouse
 
 		m_floor.render();
 		m_player.render();
+		for (const Wall& wall : m_walls)
+		{
+			wall.render();
+		}
 #if GLEAMHOUSE_WITH_DEBUG_GRAPHICS
 		m_centerSquare.render();
 #endif
@@ -73,12 +105,16 @@ namespace GleamHouse
 
 	void GleamHouse_Scene::exit()
 	{
+		m_camera->destroy();
 #if GLEAMHOUSE_WITH_DEBUG_GRAPHICS
 		m_centerSquare.destroy();
 #endif
+		for (Wall& wall : m_walls)
+		{
+			wall.destroy();
+		}
 		m_player.destroy();
 		m_floor.destroy();
-		m_camera->destroy();
 	}
 
 	void GleamHouse_Scene::createCamera()

@@ -32,6 +32,8 @@ add_executable(GleamHouse
     src/Floor.cpp
     src/Player.h
     src/Player.cpp
+    src/Wall.h
+    src/Wall.cpp
 )
 
 # Set link libraries for GleamHouse

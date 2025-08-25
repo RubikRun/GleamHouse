@@ -2,6 +2,7 @@
 
 #include "Floor.h"
 #include "Player.h"
+#include "Wall.h"
 
 #include "Layer.h"
 #include "RectangleShape.h"
@@ -26,6 +27,9 @@ namespace GleamHouse
 
 		inline std::string getLayerName() const override { return "scene_layer"; }
 
+		// Number of walls in level 1
+		static constexpr int WALLS_COUNT = 5;
+
 	private: /* functions */
 
 		void createCamera();
@@ -36,6 +40,8 @@ namespace GleamHouse
 		Floor m_floor;
 
 		Player m_player;
+
+		Wall m_walls[WALLS_COUNT];
 
 #if GLEAMHOUSE_WITH_DEBUG_GRAPHICS
 		// A small square to mark coordinate system's center

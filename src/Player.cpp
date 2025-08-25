@@ -2,7 +2,6 @@
 
 #include "Image.h"
 #include "Texture2D.h"
-#include "PekanLogger.h"
 #include "PekanEngine.h"
 #include "Renderer2DSystem.h"
 

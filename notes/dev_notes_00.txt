@@ -52,7 +52,7 @@ Next thing to do is
         2.1. Render a small sprite
         ...
 
-First, create a texture to be used for player's sprite
+First, create an image to be used for player's sprite
     src/resources/GleamHouse_player.png
 
 Then, let's create a new class
@@ -158,5 +158,35 @@ and, finally set the rotation of player's sprite to be this angle, so that it po
     m_sprite.setRotation(angle);
 
 It works!
+Done.
+}
+
+{
+Next thing to do is
+    3. Create walls
+        3.1. Each wall is rendered as a sprite
+        ...
+
+First, create an image to be used for a wall's sprite
+    src/resources/GleamHouse_wall.png
+
+Let's create a new class
+    class Wall
+in new files
+    Wall.h
+    Wall.cpp
+
+Had to add support for custom texture coordinates of Sprites in Pekan to continue with this.
+Did it.
+Updated Pekan here.
+
+----------
+25.08.2025
+----------
+
+class Wall is ready.
+Created 5 walls arranged to form a room with a small exit on the right side.
+Looks good.
+
 Done.
 }
