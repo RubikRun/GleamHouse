@@ -4,6 +4,7 @@
 #include "Texture2D.h"
 #include "PekanEngine.h"
 #include "Renderer2DSystem.h"
+#include "BoundingCircle.h"
 
 using namespace Pekan;
 using namespace Pekan::Graphics;
@@ -18,6 +19,8 @@ namespace GleamHouse
 	static constexpr float SIZE = 1.0f;
 	// Player's speed, in world space, per frame
 	static constexpr float SPEED = 0.05f;
+	// Radius of player's bounding circle
+	static constexpr float BOUNDING_CIRCLE_RADIUS = SIZE * 0.5f * 0.8f;
 
 	bool Player::create()
 	{
@@ -45,24 +48,41 @@ namespace GleamHouse
 		m_sprite.render();
 	}
 
-	void Player::update()
+	void Player::update(const Wall* walls, int wallsCount)
 	{
-		// Move player up/left/down/right if W/A/S/D key is pressed
+		// If W/A/S/D key is pressed move player up/left/down/right,
+		// but only if it can be moved there.
 		if (PekanEngine::isKeyPressed(KeyCode::KEY_W))
 		{
-			m_sprite.move({ 0.0f, SPEED });
+			const glm::vec2 delta = { 0.0f, SPEED };
+			if (canMoveBy(delta, walls, wallsCount))
+			{
+				m_sprite.move(delta);
+			}
 		}
 		if (PekanEngine::isKeyPressed(KeyCode::KEY_A))
 		{
-			m_sprite.move({ -SPEED, 0.0f });
+			const glm::vec2 delta = { -SPEED, 0.0f };
+			if (canMoveBy(delta, walls, wallsCount))
+			{
+				m_sprite.move(delta);
+			}
 		}
 		if (PekanEngine::isKeyPressed(KeyCode::KEY_S))
 		{
-			m_sprite.move({ 0.0f, -SPEED });
+			const glm::vec2 delta = { 0.0f, -SPEED };
+			if (canMoveBy(delta, walls, wallsCount))
+			{
+				m_sprite.move(delta);
+			}
 		}
 		if (PekanEngine::isKeyPressed(KeyCode::KEY_D))
 		{
-			m_sprite.move({ SPEED, 0.0f });
+			const glm::vec2 delta = { SPEED, 0.0f };
+			if (canMoveBy(delta, walls, wallsCount))
+			{
+				m_sprite.move(delta);
+			}
 		}
 
 		// Rotate sprite to point towards the mouse
@@ -76,6 +96,29 @@ namespace GleamHouse
 			// Set sprite's rotation to be that angle
 			m_sprite.setRotation(angle);
 		}
+	}
+
+	bool Player::canMoveBy(glm::vec2 delta, const Wall* walls, int wallsCount)
+	{
+		// Calculate player's position after applying the delta vector
+		const glm::vec2 newPosition = getPosition() + delta;
+		// Create bounding box for resulting position
+		BoundingCircle boundingCircle;
+		boundingCircle.position = newPosition;
+		boundingCircle.radius = BOUNDING_CIRCLE_RADIUS;
+		// Check if bounding circle collides with any wall
+		for (int i = 0; i < wallsCount; i++)
+		{
+			const BoundingBox wallBoundingBox = walls[i].getBoundingBox();
+			// If player's bounding circle collides with a wall's bounding box,
+			// then we can't move player by the delta vector
+			if (boundingCircle.collides(wallBoundingBox))
+			{
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 } // namespace GleamHouse

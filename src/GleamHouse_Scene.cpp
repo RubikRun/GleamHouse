@@ -81,7 +81,7 @@ namespace GleamHouse
 
 	void GleamHouse_Scene::update(double dt)
 	{
-		m_player.update();
+		m_player.update(m_walls, WALLS_COUNT);
 		updateCamera();
 	}
 
@@ -91,11 +91,11 @@ namespace GleamHouse
         RenderCommands::clear();
 
 		m_floor.render();
-		m_player.render();
 		for (const Wall& wall : m_walls)
 		{
 			wall.render();
 		}
+		m_player.render();
 #if GLEAMHOUSE_WITH_DEBUG_GRAPHICS
 		m_centerSquare.render();
 #endif

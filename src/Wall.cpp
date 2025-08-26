@@ -43,6 +43,9 @@ namespace GleamHouse
 			m_sprite.setTextureCoordinatesMax({ size.x * TEXTURE_SCALE, size.y * TEXTURE_SCALE });
 			m_sprite.setPosition(centerPosition);
 		}
+		// Create bounding box
+		m_boundingBox.min = bottomLeftPosition - glm::vec2(BORDER_THICKNESS, BORDER_THICKNESS);
+		m_boundingBox.max = topRightPosition + glm::vec2(BORDER_THICKNESS, BORDER_THICKNESS);
 
 		return true;
 	}

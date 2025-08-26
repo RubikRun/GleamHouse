@@ -190,3 +190,117 @@ Looks good.
 
 Done.
 }
+
+{
+We actually already did the next step
+    3. Create walls
+        ...
+        3.2. A wall never moves, in world space
+        ...
+by just NOT having move(), setPosition(), setSize() or similar functions in class Wall.
+A wall's size and position are determined only in the create() function.
+Once a wall is created its size and position cannot be changed.
+}
+
+{
+Next thing to do is
+    3. Create walls
+        ...
+        3.3. Player can't pass through walls
+
+To do this we'll need the concept of a bounding box.
+Let's create a new struct
+    struct BoundingBox
+in new files
+    BoundingBox.h
+    BoundingBox.cpp
+It will represent an axis-alligned rectangle in world space
+that can be used to detect collisions with other rectangles.
+The main functionality of BoundingBox will be
+    bool collides(BoundingBox other) const;
+detecting if a BoundingBox collides with another BoundingBox.
+
+Then, we'll use this BoundingBox struct to make walls have bounding boxes.
+Add this member variable in class Wall
+    BoundingBox m_boundingBox;
+together with a getter
+    BoundingBox getBoundingBox() const { return m_boundingBox; }
+and we'll calculate the bounding box in Wall'c create() function,
+only once, since a Wall is never moded or changed
+    m_boundingBox.min = bottomLeftPosition - glm::vec2(BORDER_THICKNESS, BORDER_THICKNESS);
+    m_boundingBox.max = topRightPosition + glm::vec2(BORDER_THICKNESS, BORDER_THICKNESS);
+
+----------
+26.08.2025
+----------
+
+For class Player we can also use a BoundingBox, but it will actually be better to have a new struct
+    BoundingCircle
+because the player is a circle-ish character, it's better to bound it in a circle instead of a rectangle.
+So, this struct BoundingCircle will be very similar to BoundingBox,
+but instead of a rectangle it will be a circle.
+It will have the same collides() function
+    bool collides(BoundingCircle other) const;
+detecting if a BoundingCircle collides with another BoundingCircle.
+However, we'll also need to detect circle-rectangle collisions, so let's add an overload of BoundingCircle's collides() function
+that takes in a BoundingBox instead of a BoundingCircle
+    bool collides(const BoundingBox& box) const;
+(This time it's a const reference because we need to do a forward declaration of struct BoundingBox in BoundingCircle.h)
+Just for consistency let's also have the opposite function in struct BoundingBox
+    bool collides(const BoundingCircle& circle) const;
+One of these 2 functions will just call the other so that they use the same implementation.
+
+Okay, now that our walls have bounding boxes and we know how to detect collisions,
+let's actually limit player's movement based on their collisions with walls.
+We'll need to pass the list of walls as a parameter to Player's update() function
+    void update(const Wall* walls, int wallsCount);
+because moving the player depends on where the walls are.
+Then, we'll create this helper function
+    bool canMoveBy(glm::vec2 delta, const Wall* walls, int wallsCount);
+in class Player, that will check if player can be moved by some delta vector
+so that it doesn't collide with any walls.
+To check this we can just create player's bounding circle
+    const glm::vec2 newPosition = getPosition() + delta;
+    BoundingCircle boundingCircle;
+    boundingCircle.position = newPosition;
+    boundingCircle.radius = BOUNDING_CIRCLE_RADIUS;
+Decided NOT to have a bounding circle member in class Player
+because the bounding circle changes every frame so we can just compute it on the fly in this canMoveBy() function.
+Then, once we have player's bounding circle we can traverse all walls
+    for (int i = 0; i < wallsCount; i++)
+and check if a wall collides with player's bounding circle
+    const BoundingBox wallBoundingBox = walls[i].getBoundingBox();
+    if (boundingCircle.collides(wallBoundingBox))
+    {
+        return false;
+    }
+If it does, we can immediately return false because it's evident that player can't move there.
+If we get to the end of the function without returning false, this means that player does NOT collide with any wall
+so we can return true
+    return true;
+
+Then, in update() we'll use this canMoveBy() function as follows:
+If a move key is pressed, we'll generate a "delta" vector
+describing how player wants to move based on that pressed key
+    if (PekanEngine::isKeyPressed(KeyCode::KEY_W))
+    {
+        const glm::vec2 delta = { 0.0f, SPEED };
+        ...
+    }
+Then we can check if player can be moved by this delta vector using our canMoveBy() function
+    if (canMoveBy(delta, walls, wallsCount))
+    {
+        m_sprite.move(delta);
+    }
+and if they can, we can move the sprite.
+NOTE: It's important that we do this per key and NOT generate an accumulated delta from all 4 keys and do the canMoveBy() check on it.
+      Why?
+      Because, imagine a scenario where player is touching a wall to their left.
+      If player presses the A key, they will NOT be able to move to the left, which is the correct behavior.
+      However, if player pressed A and W keys, they will still NOT move, even though they CAN move up because nothing is blocking them from above.
+      So, doing the canMoveBy() per key will ensure that we block only the left motion, but we allow the upward motion if there is nothing above.
+
+That's it.
+It works! Looks good.
+Done.
+}

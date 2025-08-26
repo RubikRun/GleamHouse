@@ -34,6 +34,10 @@ add_executable(GleamHouse
     src/Player.cpp
     src/Wall.h
     src/Wall.cpp
+    src/BoundingBox.h
+    src/BoundingBox.cpp
+    src/BoundingCircle.h
+    src/BoundingCircle.cpp
 )
 
 # Set link libraries for GleamHouse
