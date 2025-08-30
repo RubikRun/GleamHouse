@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Sprite.h"
-#include "Wall.h"
+#include "Floor.h"
 
 namespace GleamHouse
 {
@@ -21,8 +21,8 @@ namespace GleamHouse
 		void destroy();
 
 		void render() const;
-		// Updates player, given a list of walls that limit player's movement.
-		void update(const Wall* walls, int wallsCount);
+		// Updates player, given a list of floor pieces where player is allowed to move.
+		void update(const Floor* floors, int floorsCount);
 
 		// Returns player's position, in world space
 		glm::vec2 getPosition() const { return m_sprite.getPosition(); }
@@ -30,8 +30,8 @@ namespace GleamHouse
 	private: /* functions */
 
 		// Checks if player can be moved by some delta vector,
-		// given a list of walls that limit player's movement.
-		bool canMoveBy(glm::vec2 delta, const Wall* walls, int wallsCount);
+		// given a list of floor pieces where player is allowed to move.
+		bool canMoveBy(glm::vec2 delta, const Floor* floors, int floorsCount);
 
 	private: /* variables */
 

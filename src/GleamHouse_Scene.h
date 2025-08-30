@@ -27,8 +27,8 @@ namespace GleamHouse
 
 		inline std::string getLayerName() const override { return "scene_layer"; }
 
-		// Number of walls in level 1
-		static constexpr int WALLS_COUNT = 5;
+		// Number of floor pieces
+		static constexpr int FLOORS_COUNT = 1;
 
 	private: /* functions */
 
@@ -37,11 +37,12 @@ namespace GleamHouse
 
 	private: /* variables */
 
-		Floor m_floor;
-
+		// Background wall
+		Wall m_wall;
+		// Player's character
 		Player m_player;
-
-		Wall m_walls[WALLS_COUNT];
+		// List of floor pieces defining the walkable area of the map
+		Floor m_floors[FLOORS_COUNT];
 
 #if GLEAMHOUSE_WITH_DEBUG_GRAPHICS
 		// A small square to mark coordinate system's center

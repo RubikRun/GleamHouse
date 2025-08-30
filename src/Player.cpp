@@ -5,6 +5,7 @@
 #include "PekanEngine.h"
 #include "Renderer2DSystem.h"
 #include "BoundingCircle.h"
+#include "PekanLogger.h"
 
 using namespace Pekan;
 using namespace Pekan::Graphics;
@@ -17,10 +18,15 @@ namespace GleamHouse
 	static constexpr char* IMAGE_FILEPATH = GLEAMHOUSE_ROOT_DIR "/src/resources/GleamHouse_player.png";
 	// Player's size, in world space
 	static constexpr float SIZE = 1.0f;
+	static constexpr glm::vec2 SIZE_VEC = { SIZE, SIZE };
 	// Player's speed, in world space, per frame
 	static constexpr float SPEED = 0.05f;
 	// Radius of player's bounding circle
-	static constexpr float BOUNDING_CIRCLE_RADIUS = SIZE * 0.5f * 0.8f;
+	static constexpr float BOUNDING_CIRCLE_RADIUS = SIZE * 0.5f * 1.2f;
+	// Number of subdivisions, per dimension, to use for doing collision checks with player's bounding circle
+	static constexpr int BOUNDING_CIRCLE_SUBDIVS = 8;
+	// Maximum number of floor pieces that player can collide with at once
+	static constexpr int MAX_FLOOR_COLLISIONS = 6;
 
 	bool Player::create()
 	{
@@ -48,14 +54,14 @@ namespace GleamHouse
 		m_sprite.render();
 	}
 
-	void Player::update(const Wall* walls, int wallsCount)
+	void Player::update(const Floor* floors, int floorsCount)
 	{
 		// If W/A/S/D key is pressed move player up/left/down/right,
 		// but only if it can be moved there.
 		if (PekanEngine::isKeyPressed(KeyCode::KEY_W))
 		{
 			const glm::vec2 delta = { 0.0f, SPEED };
-			if (canMoveBy(delta, walls, wallsCount))
+			if (canMoveBy(delta, floors, floorsCount))
 			{
 				m_sprite.move(delta);
 			}
@@ -63,7 +69,7 @@ namespace GleamHouse
 		if (PekanEngine::isKeyPressed(KeyCode::KEY_A))
 		{
 			const glm::vec2 delta = { -SPEED, 0.0f };
-			if (canMoveBy(delta, walls, wallsCount))
+			if (canMoveBy(delta, floors, floorsCount))
 			{
 				m_sprite.move(delta);
 			}
@@ -71,7 +77,7 @@ namespace GleamHouse
 		if (PekanEngine::isKeyPressed(KeyCode::KEY_S))
 		{
 			const glm::vec2 delta = { 0.0f, -SPEED };
-			if (canMoveBy(delta, walls, wallsCount))
+			if (canMoveBy(delta, floors, floorsCount))
 			{
 				m_sprite.move(delta);
 			}
@@ -79,7 +85,7 @@ namespace GleamHouse
 		if (PekanEngine::isKeyPressed(KeyCode::KEY_D))
 		{
 			const glm::vec2 delta = { SPEED, 0.0f };
-			if (canMoveBy(delta, walls, wallsCount))
+			if (canMoveBy(delta, floors, floorsCount))
 			{
 				m_sprite.move(delta);
 			}
@@ -98,23 +104,77 @@ namespace GleamHouse
 		}
 	}
 
-	bool Player::canMoveBy(glm::vec2 delta, const Wall* walls, int wallsCount)
+	bool Player::canMoveBy(glm::vec2 delta, const Floor* floors, int floorsCount)
 	{
 		// Calculate player's position after applying the delta vector
 		const glm::vec2 newPosition = getPosition() + delta;
-		// Create bounding box for resulting position
+
+		// Create bounding box around the new position
+		BoundingBox boundingBox;
+		boundingBox.min = newPosition - SIZE_VEC / 2.0f;
+		boundingBox.max = newPosition + SIZE_VEC / 2.0f;
+		// List of indices of floor pieces that collide with player's bounding box
+		int collisionIndices[MAX_FLOOR_COLLISIONS];
+		int collisionsCount = 0;
+		// Find floor pieces that collide with player's bounding box
+		for (int i = 0; i < floorsCount; i++)
+		{
+			const BoundingBox floorBoundingBox = floors[i].getBoundingBox();
+			if (boundingBox.collides(floorBoundingBox))
+			{
+				if (collisionsCount + 1 >= MAX_FLOOR_COLLISIONS)
+				{
+					PK_LOG_ERROR("Player collides with unexpectedly many floor pieces at once.", "GleamHouse");
+					break;
+				}
+				collisionIndices[collisionsCount++] = i;
+			}
+		}
+		// If there are no collided floor pieces, then player is fully outside of the floor so they can't move
+		if (collisionsCount <= 0)
+		{
+			return false;
+		}
+
+		// Create bounding circle around the new position
 		BoundingCircle boundingCircle;
 		boundingCircle.position = newPosition;
 		boundingCircle.radius = BOUNDING_CIRCLE_RADIUS;
-		// Check if bounding circle collides with any wall
-		for (int i = 0; i < wallsCount; i++)
+		const glm::vec2 bcircBottomLeft = boundingCircle.position - boundingCircle.radius;
+		// Subdivide bounding circle,
+		// and look for a subdivision point that is NOT inside of any of the collided floor pieces
+		for (int subdivRow = 0; subdivRow < BOUNDING_CIRCLE_SUBDIVS; subdivRow++)
 		{
-			const BoundingBox wallBoundingBox = walls[i].getBoundingBox();
-			// If player's bounding circle collides with a wall's bounding box,
-			// then we can't move player by the delta vector
-			if (boundingCircle.collides(wallBoundingBox))
+			for (int subdivCol = 0; subdivCol < BOUNDING_CIRCLE_SUBDIVS; subdivCol++)
 			{
-				return false;
+				// Calculate subdivision point, in world space
+				const glm::vec2 subdivPoint =
+				{
+					bcircBottomLeft.x + boundingCircle.radius * 2.0f * float(subdivCol) / float(BOUNDING_CIRCLE_SUBDIVS - 1),
+					bcircBottomLeft.y + boundingCircle.radius * 2.0f * float(subdivRow) / float(BOUNDING_CIRCLE_SUBDIVS - 1)
+				};
+				// If subdivision point is NOT inside the bounding circle, we can skip that point
+				if (!boundingCircle.isPointInside(subdivPoint))
+				{
+					continue;
+				}
+				// If subdivision point is NOT inside any of the collided floor pieces,
+				// than we can conclude that the bounding circle is NOT fully within the floor.
+				bool inFloor = false;
+				for (int i = 0; i < collisionsCount; i++)
+				{
+					PK_ASSERT_QUICK(collisionIndices[i] >= 0 && collisionIndices[i] < floorsCount);
+					const BoundingBox floorBoundingBox = floors[collisionIndices[i]].getBoundingBox();
+					if (floorBoundingBox.isPointInside(subdivPoint))
+					{
+						inFloor = true;
+						break;
+					}
+				}
+				if (!inFloor)
+				{
+					return false;
+				}
 			}
 		}
 

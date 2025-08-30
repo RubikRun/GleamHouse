@@ -22,4 +22,9 @@ namespace GleamHouse
         return (circleToClosest.x * circleToClosest.x + circleToClosest.y * circleToClosest.y) <= (circle.radius * circle.radius);
     }
 
+    bool BoundingBox::isPointInside(glm::vec2 point) const
+    {
+        return point.x >= min.x && point.x <= max.x && point.y >= min.y && point.y <= max.y;
+    }
+
 } // namespace GleamHouse

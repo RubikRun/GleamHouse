@@ -20,6 +20,9 @@ namespace GleamHouse
 		bool collides(BoundingBox other) const;
 		// Checks if a bounding box collides with a bounding circle
 		bool collides(const BoundingCircle& circle) const;
+
+		// Checks if a given point is inside the bounding box
+		bool isPointInside(glm::vec2 point) const;
 	};
 
 } // namespace GleamHouse

@@ -304,3 +304,75 @@ That's it.
 It works! Looks good.
 Done.
 }
+
+----------
+30.08.2025
+----------
+
+{
+Next thing to do is
+    ...
+    3.4. Assemble many walls into a labyrinth with "rooms" one after the other,
+         connected with complex tunnels.
+         There should be a final room, where level will end.
+
+Started doing this but I realized it's very hard to form a labyrinth by arranging walls.
+It makes much more sense to arrange the floor and let everything else be walls.
+
+Let's reverse the logic,
+so that we have one big Wall as the background and many Floors where player can walk.
+Okay, reversed it.
+An interesting problem that occured is how to check if player is fully within the floor.
+What makes it difficult is that the "floor" is really a union of many floor pieces which are rectangles.
+So we can't really look for a floor piece that fully contains the player, because this breaks
+when the player passes from one floor peice to another.
+We need a more sophisticated approach.
+We're talking about the implementation of Player's
+    canMoveBy()
+function.
+So, here's what I did:
+First, generate player's bounding box at the new position
+    BoundingBox boundingBox;
+    boundingBox.min = newPosition - SIZE_VEC / 2.0f;
+    boundingBox.max = newPosition + SIZE_VEC / 2.0f;
+We'll still use a bounding circle for the actual movement-limiting collisions,
+but we'll first use this bounding box for a bit of optimization.
+We want to collect all floor pieces that collide with the bounding box,
+because these are the only ones that we are interested in.
+All other floor pieces we can disregard because if player's bounding box doesn't collide with them
+then player's bounding circle definitely doesn't.
+So, in a small array of indices we will collect floor pieces that collide with player's bounding box
+    int collisionIndices[MAX_FLOOR_COLLISIONS];
+    int collisionsCount = 0;
+We use a static array here, not a vector, because we know that the collided floor pieces will be 1, 2 or at most 3.
+Just in case we reserve spacea for 6 but this amount will never be reached in practice
+    static constexpr int MAX_FLOOR_COLLISIONS = 6;
+So yeah, now finding those collision indices - the indices of floor peices that collide with the bounding box, happens like that:
+    for (int i = 0; i < floorsCount; i++)
+    {
+        const BoundingBox floorBoundingBox = floors[i].getBoundingBox();
+        if (boundingBox.collides(floorBoundingBox))
+        {
+            ...
+            collisionIndices[collisionsCount++] = i;
+        }
+    }
+Easy enough.
+Then, we continue with the bounding circle.
+We first generate the bounding circle
+    BoundingCircle boundingCircle;
+    boundingCircle.position = newPosition;
+    boundingCircle.radius = BOUNDING_CIRCLE_RADIUS;
+and then we need to check if this bounding circle is fully contained within the floor,
+but now we can do this in a much more optimized way.
+We can just check the few collided floor pieces that we already collected.
+So, we need to check if the bounding circle is fully contained in the union of the collided floor pieces.
+How do we do that?
+We can approximate the answer by subdividing the circle with a grid of, say 8x8, points evenly spread across the circle.
+If each of those points is inside one of the floor pieces then we can conclude that the whole circle is (most probably)  fully inside the union.
+I'll spare the details here, see the code.
+That's it.
+
+Seems to work fine.
+
+}

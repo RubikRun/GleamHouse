@@ -18,23 +18,18 @@ namespace GleamHouse
 	// Interpolation factor to be used for camera's movement
 	static constexpr float CAMERA_LERP_FACTOR = 0.05f;
 
-	// Bottom-left positions of walls in level 1
-	static constexpr glm::vec2 WALLS_BOTTOM_LEFT_POSITIONS[GleamHouse_Scene::WALLS_COUNT] =
+	static constexpr glm::vec2 MAP_BOTTOM_LEFT_POSITION = { -100.0f, -100.0f };
+	static constexpr glm::vec2 MAP_TOP_RIGHT_POSITION = { 100.0f, 100.0f };
+
+	// Bottom-left positions of floors
+	static constexpr glm::vec2 FLOORS_BOTTOM_LEFT_POSITIONS[GleamHouse_Scene::FLOORS_COUNT] =
 	{
-		{ -5.0f, 5.0f },
-		{ -5.0f, -100.0f },
-		{ -100.0f, -100.0f },
-		{ 5.0f, -100.0f },
-		{ 5.0f, 1.0f }
+		{ -5.0f, -5.0f }
 	};
-	// Top-right positions of walls in level 1
-	static constexpr glm::vec2 WALLS_TOP_RIGHT_POSITIONS[GleamHouse_Scene::WALLS_COUNT] =
+	// Top-right positions of floors
+	static constexpr glm::vec2 FLOORS_TOP_RIGHT_POSITIONS[GleamHouse_Scene::FLOORS_COUNT] =
 	{
-		{ 5.0f, 100.0f },
-		{ 5.0f, -5.0f },
-		{ -5.0f, 100.0f },
-		{ 7.0f, -1.0f },
-		{ 7.0f, 100.0f }
+		{ 5.0f, 5.0f }
 	};
 
     bool GleamHouse_Scene::init()
@@ -44,10 +39,10 @@ namespace GleamHouse
 		RenderState::enableBlending();
 		RenderState::setBlendFunction(BlendFactor::SrcAlpha, BlendFactor::OneMinusSrcAlpha);
 
-		// Create floor
-		if (!m_floor.create())
+		// Create background wall
+		if (!m_wall.create(MAP_BOTTOM_LEFT_POSITION, MAP_TOP_RIGHT_POSITION))
 		{
-			PK_LOG_ERROR("Failed to create floor.", "GleamHouse");
+			PK_LOG_ERROR("Failed to create background wall.", "GleamHouse");
 			return false;
 		}
 		// Create player
@@ -56,12 +51,12 @@ namespace GleamHouse
 			PK_LOG_ERROR("Failed to create player.", "GleamHouse");
 			return false;
 		}
-		// Create walls
-		for (int i = 0; i < WALLS_COUNT; i++)
+		// Create floor pieces
+		for (int i = 0; i < FLOORS_COUNT; i++)
 		{
-			if (!m_walls[i].create(WALLS_BOTTOM_LEFT_POSITIONS[i], WALLS_TOP_RIGHT_POSITIONS[i]))
+			if (!m_floors[i].create(FLOORS_BOTTOM_LEFT_POSITIONS[i], FLOORS_TOP_RIGHT_POSITIONS[i]))
 			{
-				PK_LOG_ERROR("Failed to create a wall.", "GleamHouse");
+				PK_LOG_ERROR("Failed to create a floor piece.", "GleamHouse");
 				return false;
 			}
 		}
@@ -81,7 +76,7 @@ namespace GleamHouse
 
 	void GleamHouse_Scene::update(double dt)
 	{
-		m_player.update(m_walls, WALLS_COUNT);
+		m_player.update(m_floors, FLOORS_COUNT);
 		updateCamera();
 	}
 
@@ -90,10 +85,10 @@ namespace GleamHouse
         Renderer2DSystem::beginFrame();
         RenderCommands::clear();
 
-		m_floor.render();
-		for (const Wall& wall : m_walls)
+		m_wall.render();
+		for (const Floor& floor : m_floors)
 		{
-			wall.render();
+			floor.render();
 		}
 		m_player.render();
 #if GLEAMHOUSE_WITH_DEBUG_GRAPHICS
@@ -109,12 +104,12 @@ namespace GleamHouse
 #if GLEAMHOUSE_WITH_DEBUG_GRAPHICS
 		m_centerSquare.destroy();
 #endif
-		for (Wall& wall : m_walls)
+		for (Floor& floor : m_floors)
 		{
-			wall.destroy();
+			floor.destroy();
 		}
 		m_player.destroy();
-		m_floor.destroy();
+		m_wall.destroy();
 	}
 
 	void GleamHouse_Scene::createCamera()
