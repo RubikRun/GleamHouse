@@ -375,4 +375,9 @@ That's it.
 
 Seems to work fine.
 
+Now, much more easily, we can arrange floor pieces to form the labyrinth.
+Let's do that.
+Okay, done.
+Created the map from 21 floor pieces.
+
 }

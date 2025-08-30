@@ -22,14 +22,54 @@ namespace GleamHouse
 	static constexpr glm::vec2 MAP_TOP_RIGHT_POSITION = { 100.0f, 100.0f };
 
 	// Bottom-left positions of floors
-	static constexpr glm::vec2 FLOORS_BOTTOM_LEFT_POSITIONS[GleamHouse_Scene::FLOORS_COUNT] =
+	static constexpr glm::ivec2 FLOORS_BOTTOM_LEFT_POSITIONS[GleamHouse_Scene::FLOORS_COUNT] =
 	{
-		{ -5.0f, -5.0f }
+		{ -5, -5 },
+		{ 5, -1 },
+		{ 12, -10 },
+		{ 14, -10 },
+		{ 14, 8 },
+		{ 16, 10 },
+		{ 18, 14 },
+		{ 20, 14 },
+		{ 44, 30 },
+		{ 50, 14 },
+		{ 54, 10 },
+		{ 55, 20 },
+		{ 64, 16 },
+		{ 79, -10 },
+		{ 80, -5 },
+		{ 55, 10 },
+		{ 56, 5 },
+		{ 58, 0 },
+		{ 58, -6 },
+		{ 54, -6 },
+		{ 22, -36 },
 	};
 	// Top-right positions of floors
-	static constexpr glm::vec2 FLOORS_TOP_RIGHT_POSITIONS[GleamHouse_Scene::FLOORS_COUNT] =
+	static constexpr glm::ivec2 FLOORS_TOP_RIGHT_POSITIONS[GleamHouse_Scene::FLOORS_COUNT] =
 	{
-		{ 5.0f, 5.0f }
+		{ 5, 5 },
+		{ 12, 1 },
+		{ 14, 10 },
+		{ 18, -8 },
+		{ 24, 10 },
+		{ 18, 16 },
+		{ 20, 16 },
+		{ 44, 32 },
+		{ 68, 32 },
+		{ 51, 30 },
+		{ 55, 30 },
+		{ 80, 21 },
+		{ 65, 20 },
+		{ 80, 20 },
+		{ 88, -4 },
+		{ 56, 11 },
+		{ 70, 15 },
+		{ 79, 1 },
+		{ 59, 0 },
+		{ 58, -5 },
+		{ 54, 0 },
 	};
 
     bool GleamHouse_Scene::init()

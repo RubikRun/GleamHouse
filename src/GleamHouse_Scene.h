@@ -28,7 +28,7 @@ namespace GleamHouse
 		inline std::string getLayerName() const override { return "scene_layer"; }
 
 		// Number of floor pieces
-		static constexpr int FLOORS_COUNT = 1;
+		static constexpr int FLOORS_COUNT = 21;
 
 	private: /* functions */
 
