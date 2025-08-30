@@ -380,4 +380,18 @@ Let's do that.
 Okay, done.
 Created the map from 21 floor pieces.
 
+Noticed a small detail that annoys me.
+Some floor pieces (those with an odd size) end with a black square
+and next to them another floor piece starts with a black square,
+resulting in 2 black squares next to each other (or vice versa).
+The only way to fix this is to allow users of class Floor to specify the color of row 0 col 0.
+(Currently we are always making it black)
+So, added a bool parameter to Floor's create() function
+    bool create(glm::ivec2 bottomLeftPosition, glm::ivec2 topRightPosition, bool isBottomLeftBlack = true);
+and we'll manually pass true/false depending on which floor piece we are creating.
+That's it.
+Now there are no 2 tiles of the same color next to each other.
+
+Map design for level 1 is done.
+Done.
 }

@@ -12,7 +12,7 @@ namespace GleamHouse
 	// Exact color of "black" tiles
 	static constexpr glm::vec4 COLOR_BLACK = { 0.1f, 0.1f, 0.1f, 1.0f };
 
-	bool Floor::create(glm::ivec2 bottomLeftPosition, glm::ivec2 topRightPosition)
+	bool Floor::create(glm::ivec2 bottomLeftPosition, glm::ivec2 topRightPosition, bool isBottomLeftBlack)
 	{
 		// Create big white rectangle
 		const glm::vec2 bigWhiteRectangleSize = glm::vec2(topRightPosition - bottomLeftPosition);
@@ -27,17 +27,28 @@ namespace GleamHouse
 			const glm::ivec2 squaresCount = topRightPosition - bottomLeftPosition;
 			// Allocate memory for all black squares.
 			// (*) See formula derivation at the end of the file
-			m_blackSquares.resize
-			(
-				((squaresCount.x + 1) / 2) * ((squaresCount.y + 1) / 2) + (squaresCount.x / 2) * (squaresCount.y / 2)
-			);
+			if (isBottomLeftBlack)
+			{
+				m_blackSquares.resize
+				(
+					((squaresCount.x + 1) / 2) * ((squaresCount.y + 1) / 2) + (squaresCount.x / 2) * (squaresCount.y / 2)
+				);
+			}
+			else
+			{
+				m_blackSquares.resize
+				(
+					((squaresCount.x + 1) / 2) * (squaresCount.y / 2) + (squaresCount.x / 2) * ((squaresCount.y + 1) / 2)
+				);
+			}
 			// Number of black squares created so far
 			int blackSquaresCreatedCount = 0;
 			for (int row = 0; row < squaresCount.y; row++)
 			{
 				// Rows alternate between starting with a black square and starting with a white square,
 				// so the starting column of the black squares in each row is 0, 1, 0, 1, 0, etc.
-				const int startingCol = (row % 2 == 0) ? 0 : 1;
+				// (or the opposite if isBottomLeftBlack is false)
+				const int startingCol = (row + (isBottomLeftBlack ? 0 : 1)) % 2;
 				for (int col = startingCol; col < squaresCount.x; col += 2)
 				{
 					// Calculate coordinates of square's center, in world space
