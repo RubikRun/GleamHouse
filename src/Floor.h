@@ -13,7 +13,7 @@ namespace GleamHouse
 
 	public:
 
-		bool create(glm::ivec2 bottomLeftPosition, glm::ivec2 topRightPosition);
+		bool create(glm::ivec2 bottomLeftPosition, glm::ivec2 topRightPosition, bool isBottomLeftBlack = true);
 		void destroy();
 
 		void render() const;
