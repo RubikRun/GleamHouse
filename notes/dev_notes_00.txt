@@ -395,3 +395,31 @@ Now there are no 2 tiles of the same color next to each other.
 Map design for level 1 is done.
 Done.
 }
+
+----------
+04.09.2025
+----------
+
+{
+For the next step
+    4. Create a post-processing shader with a uniform array of light positions,
+    together with a uniform array of light intensities, and a uniform array of light colors.
+    This shader will apply lighting on top of what is already rendered.
+I had to take a detour and implement post-processing shaders in Pekan.
+Did it.
+Updated Pekan here.
+
+Now let's actually implement the lights shader here in Gleam House.
+    shaders/PostProcessingShader.glsl
+Done.
+It supports multiple lights, where each light consists of
+- a position (in window space)
+- intensity (between 0 and 1)
+- radius (in world space)
+- sharpness (between 0 and 1)
+
+Currently made it so that there is a single light and it's right on top of player.
+
+Looks good.
+Done.
+}

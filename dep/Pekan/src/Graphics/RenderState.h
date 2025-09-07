@@ -112,6 +112,7 @@ namespace Graphics
 		friend class IndexBuffer;
 		friend class Texture1D;
 		friend class Texture2D;
+		friend class Texture2DMultisample;
 
 	public:
 
@@ -127,9 +128,13 @@ namespace Graphics
 		// NOTE: You need to enable blending with enableBlending() before using this function
 		static void setBlendFunction(BlendFactor sourceFactor, BlendFactor destinationFactor);
 
-		// Enables depth testing, so that overlapping primitives can be drawn correctly,
+		// Enables/disables depth testing.
+		// Usually used so that overlapping primitives can be drawn correctly,
 		// meaning that the ones in front will be rendered and the ones behind will be hidden.
 		static void enableDepthTest();
+		static void disableDepthTest();
+		// Checks if depth testing is enabled.
+		static bool isEnabledDepthTest();
 
 		// Enables Multisample Anti-Aliasing (MSAA) for removing jagged edges of shapes and lines.
 		// IMPORTANT: In order for MSAA to work you need to have a window

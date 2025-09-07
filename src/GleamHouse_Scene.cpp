@@ -5,11 +5,14 @@
 #include "RenderState.h"
 #include "PekanTools.h"
 #include "PekanEngine.h"
+#include "PostProcessor.h"
 
 using namespace Pekan::Graphics;
 using namespace Pekan::Renderer2D;
 using namespace Pekan::Tools;
 using namespace Pekan;
+
+#define POST_PROCESSING_SHADER_FILEPATH "src/shaders/PostProcessingShader.glsl"
 
 namespace GleamHouse
 {
@@ -82,6 +85,13 @@ namespace GleamHouse
 
 		createCamera();
 
+		if (!PostProcessor::init(POST_PROCESSING_SHADER_FILEPATH))
+		{
+			PK_LOG_ERROR("Failed to initialize PostProcessor", "Demo06");
+		}
+
+		t = 0.0f;
+
         return true;
 	}
 
@@ -89,10 +99,14 @@ namespace GleamHouse
 	{
 		m_player.update(m_floors, FLOORS_COUNT);
 		updateCamera();
+		updateLights();
+
+		t += float(dt);
 	}
 
 	void GleamHouse_Scene::render() const
 	{
+		PostProcessor::beginFrame();
         Renderer2DSystem::beginFrame();
         RenderCommands::clear();
 
@@ -107,6 +121,7 @@ namespace GleamHouse
 #endif
 
         Renderer2DSystem::endFrame();
+		PostProcessor::endFrame();
 	}
 
 	void GleamHouse_Scene::exit()
@@ -139,6 +154,37 @@ namespace GleamHouse
 		const glm::vec2 cameraPos = m_camera->getPosition();
 		const glm::vec2 newCameraPos = cameraPos + (playerPos - cameraPos) * CAMERA_LERP_FACTOR;
 		m_camera->setPosition(newCameraPos);
+	}
+
+	void GleamHouse_Scene::updateLights()
+	{
+		Camera2D_ConstPtr camera = Renderer2DSystem::getCamera();
+		if (camera == nullptr)
+		{
+			PK_LOG_ERROR("Cannot update lights because camera is null.", "Demo06");
+			return;
+		}
+
+		const glm::vec2 playerPosInWindow = camera->worldToWindow(m_player.getPosition());
+
+		std::vector<glm::vec2> positions = { playerPosInWindow };
+		std::vector<float> intensities = { 1.0f };
+		std::vector<glm::vec3> colors = { { 1.0f, 0.98f, 0.9f } };
+		std::vector<float> radii = { 180.0f };
+		std::vector<float> sharpnesses = { 0.6f };
+		PK_ASSERT_QUICK(positions.size() == intensities.size() && positions.size() == colors.size()
+			&& positions.size() == radii.size() && positions.size() == sharpnesses.size());
+
+		Shader* ppShader = PostProcessor::getShader();
+		ppShader->setUniform1i("uLightsCount", positions.size());
+		ppShader->setUniform2fv("uLightPositions", positions.size(), positions.data());
+		ppShader->setUniform1fv("uLightIntensities", intensities.size(), intensities.data());
+		ppShader->setUniform3fv("uLightColors", colors.size(), colors.data());
+		ppShader->setUniform1fv("uLightRadii", radii.size(), radii.data());
+		ppShader->setUniform1fv("uLightSharpnesses", sharpnesses.size(), sharpnesses.data());
+
+		const glm::vec2 resolution = glm::vec2(PekanEngine::getWindow().getSize());
+		ppShader->setUniform2f("uResolution", resolution);
 	}
 
 

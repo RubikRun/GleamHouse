@@ -35,6 +35,8 @@ namespace GleamHouse
 		void createCamera();
 		void updateCamera();
 
+		void updateLights();
+
 	private: /* variables */
 
 		// Background wall
@@ -50,6 +52,8 @@ namespace GleamHouse
 #endif
 
 		Pekan::Renderer2D::Camera2D_Ptr m_camera;
+
+		float t = 0.0f;
 	};
 
 } // namespace GleamHouse

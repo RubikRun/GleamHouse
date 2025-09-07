@@ -10,21 +10,17 @@ namespace Graphics {
 	class Image;
 	class FrameBuffer;
 
-	// A class representing a 2D texture on the GPU.
-	class Texture2D
+	// A class representing a multisample 2D texture on the GPU.
+	class Texture2DMultisample
 	{
 	public:
 
-		~Texture2D();
+		~Texture2DMultisample();
 
 		// Creates an empty texture
-		void create();
-		// Creates a texture from a given image
-		void create(const Image& image);
+		void create(int samplesPerTexel);
 		void destroy();
 
-		// Sets a new image to the texture
-		void setImage(const Image& image);
 		// Sets texture's size,
 		// allocating memory for that many texels,
 		// but NOT filling them with data.
@@ -40,20 +36,6 @@ namespace Graphics {
 		// Activates given texture slot
 		static void activateSlot(unsigned slot);
 
-		// Sets a minify function to be used for sampling the texture
-		void setMinifyFunction(TextureMinifyFunction function);
-		// Sets a magnify function to be used for sampling the texture
-		void setMagnifyFunction(TextureMagnifyFunction function);
-
-		// Sets a wrap mode to be used for the X texture coordinate
-		void setWrapModeX(TextureWrapMode wrapMode);
-		// Sets a wrap mode to be used for the Y texture coordinate
-		void setWrapModeY(TextureWrapMode wrapMode);
-
-		// Sets a color for the border of the texture.
-		// This color will be used to color pixels outside of the [0, 1] range if the wrap mode is ClampToBorder.
-		void setBorderColor(glm::vec4 color);
-
 		// Attaches texture to a given frame buffer
 		void attachToFrameBuffer(const FrameBuffer& frameBuffer) const;
 
@@ -62,20 +44,20 @@ namespace Graphics {
 
 	private: /* functions */
 
-		// Determines the format (and internal format) that a texture must have to support a given image
-		static void getFormat(const Image& image, unsigned& format, unsigned& internalFormat);
-
 		// Determines the format (and internal format) that a texture must have to support a given number of channels
 		static void getFormat(int numChannels, unsigned& format, unsigned& internalFormat);
 
 	private: /* variables */
 
+		// Number of samples per texel
+		int m_samplesPerTexel = -1;
+
 		// Texture's ID on the GPU
 		unsigned m_id = 0;
 	};
 
-	typedef std::shared_ptr<Texture2D> Texture2D_Ptr;
-	typedef std::shared_ptr<const Texture2D> Texture2D_ConstPtr;
+	typedef std::shared_ptr<Texture2DMultisample> Texture2DMultisample_Ptr;
+	typedef std::shared_ptr<const Texture2DMultisample> Texture2DMultisample_ConstPtr;
 
 } // namespace Pekan
 } // namespace Graphics
