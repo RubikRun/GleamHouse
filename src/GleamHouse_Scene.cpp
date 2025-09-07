@@ -47,6 +47,8 @@ namespace GleamHouse
 	};
 
 	static constexpr glm::vec2 STAR_POSITION = { 20.0f, -40.0f };
+	static constexpr float STAR_BASE_INTENSITY = 80.0f;
+	static constexpr glm::vec3 STAR_BASE_COLOR = { 0.5f, 0.3f, 1.0f };
 
     bool GleamHouse_Scene::init()
 	{
@@ -144,6 +146,8 @@ namespace GleamHouse
 	{
 		m_camera = std::make_shared<Camera2D>();
 		m_camera->create(CAMERA_SCALE);
+
+		// TEMP
 		//m_camera->setZoom(0.1f);
 
 		Renderer2DSystem::setCamera(m_camera);
@@ -169,10 +173,12 @@ namespace GleamHouse
 		}
 
 		const glm::vec2 starPosInWindow = camera->worldToWindow(STAR_POSITION);
+		const float starIntensity = getStarIntensity();
+		const glm::vec3 starColor = getStarColor();
 
 		std::vector<glm::vec2> positions = { starPosInWindow };
-		std::vector<float> intensities = { 80.0f };
-		std::vector<glm::vec3> colors = { { 0.5f, 0.3f, 1.0f } };
+		std::vector<float> intensities = { starIntensity };
+		std::vector<glm::vec3> colors = { starColor };
 		std::vector<float> radii = { 500.0f * camera->getZoom() };
 		std::vector<float> sharpnesses = { 0.1f };
 		std::vector<float> isStar = { 1.0f };
@@ -192,5 +198,33 @@ namespace GleamHouse
 		ppShader->setUniform2f("uResolution", resolution);
 	}
 
+	float GleamHouse_Scene::getStarIntensity()
+	{
+		const glm::vec2 playerPos = m_player.getPosition();
+		const glm::vec2 starToPlayerVec = playerPos - STAR_POSITION;
+		const float distance = std::sqrtf(starToPlayerVec.x * starToPlayerVec.x + starToPlayerVec.y * starToPlayerVec.y);
+		if (distance > 30.0f)
+		{
+			return STAR_BASE_INTENSITY;
+		}
+		return (0.01f * (30.0f - distance) * (30.0f - distance) + 1.0f) * STAR_BASE_INTENSITY;
+	}
+
+	glm::vec3 GleamHouse_Scene::getStarColor()
+	{
+		const glm::vec2 playerPos = m_player.getPosition();
+		const glm::vec2 starToPlayerVec = playerPos - STAR_POSITION;
+		const float distance = std::sqrtf(starToPlayerVec.x * starToPlayerVec.x + starToPlayerVec.y * starToPlayerVec.y);
+		if (distance > 30.0f)
+		{
+			return STAR_BASE_COLOR;
+		}
+		if (distance < 10.0f)
+		{
+			return glm::vec3(1.0f, 1.0f, 1.0f);
+		}
+		const float inter = (30.0f - distance) / (30.0f - 10.0f);
+		return (1.0f - inter) * STAR_BASE_COLOR + inter * glm::vec3(1.0f, 1.0f, 1.0f);
+	}
 
 } // namespace GleamHouse

@@ -41,6 +41,9 @@ namespace GleamHouse
 			m_sprite.create(texture, SIZE, SIZE);
 		}
 
+		// TEMP
+		m_sprite.setPosition({ 45.0f, -20.0f });
+
 		return true;
 	}
 

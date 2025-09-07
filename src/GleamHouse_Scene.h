@@ -37,6 +37,12 @@ namespace GleamHouse
 
 		void updateLights();
 
+		// Returns star's intensity based on player's current position
+		float getStarIntensity();
+
+		// Returns star's color based on player's current position
+		glm::vec3 getStarColor();
+
 	private: /* variables */
 
 		// Background wall

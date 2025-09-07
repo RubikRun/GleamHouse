@@ -469,3 +469,19 @@ Looks good.
 
 Done.
 }
+
+{
+Next thing to do is
+    5. Create a star
+        ...
+        5.3. When player goes inside a star, the star's intensity will grow
+            such that when player is sufficiently close to the center everything will be white.
+            When everything becomes white, the level is complete
+            and a text will appear, fading in, staying for 8s and fading out, saying
+                Completed Level 1!
+            (NOTE: Pekan doesn't support text rendering but we can have an image with the text)
+
+Okay, first made the star increase its intensity and change its color from blue-ish to white gradually
+as player gets closer to star's center.
+
+}
