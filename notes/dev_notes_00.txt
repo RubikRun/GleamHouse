@@ -423,3 +423,49 @@ Currently made it so that there is a single light and it's right on top of playe
 Looks good.
 Done.
 }
+
+----------
+07.09.2025
+----------
+
+{
+Next thing to do is:
+    5. Create a star
+        5.1. A big star will mark level's ending. It will be in the center of the final room
+        5.2. A star will be passed to the post-processing shader as a light with big intensity,
+             so that it shines really brightly with a big radius, and a white-ish color.
+        ...
+
+Okay, had to extend
+    PostProcessingShader.glsl
+with a list of "isStar" flags for lights,
+because we want to treat star light a bit differenly from normal light.
+We want to sum the contribution of all normal lights and cap that at 1.0
+but we don't want to cap the star lights, we want to allow more than 100% light,
+so that in the center of a star everything should be just white (or whatever the star's color is).
+So, in
+    PostProcessingShader.glsl
+we will first sum normal lights by just skipping stars in the for loop
+    if (uLightIsStarFlags[i] > 0.0)
+    {
+        continue;
+    }
+then we'll cap the sum
+    lightSum = min(lightSum, 1.0 - baseLight);
+and then we'll sum star lights by just skipping normal lights in the for loop
+    if (uLightIsStarFlags[i] < 1.0)
+    {
+        continue;
+    }
+and NOT capping anything after that.
+That's it.
+
+Then, I created a star at the end of the level - in the bottom-left corner of the final room.
+Configured its light parameters so that it shines a little bit into the initial room,
+so that at the beginning of the level player can see where the star is, or at least at what direction.
+The star is NOT, however, strong enough to light the rest of player' path.
+Player must continue in darkness after the first room.
+Looks good.
+
+Done.
+}

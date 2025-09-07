@@ -46,6 +46,8 @@ namespace GleamHouse
 		false, true, true, true, true
 	};
 
+	static constexpr glm::vec2 STAR_POSITION = { 20.0f, -40.0f };
+
     bool GleamHouse_Scene::init()
 	{
         RenderState::enableMultisampleAntiAliasing();
@@ -142,6 +144,7 @@ namespace GleamHouse
 	{
 		m_camera = std::make_shared<Camera2D>();
 		m_camera->create(CAMERA_SCALE);
+		//m_camera->setZoom(0.1f);
 
 		Renderer2DSystem::setCamera(m_camera);
 	}
@@ -165,15 +168,16 @@ namespace GleamHouse
 			return;
 		}
 
-		const glm::vec2 playerPosInWindow = camera->worldToWindow(m_player.getPosition());
+		const glm::vec2 starPosInWindow = camera->worldToWindow(STAR_POSITION);
 
-		std::vector<glm::vec2> positions = { playerPosInWindow };
-		std::vector<float> intensities = { 1.0f };
-		std::vector<glm::vec3> colors = { { 1.0f, 0.98f, 0.9f } };
-		std::vector<float> radii = { 180.0f };
-		std::vector<float> sharpnesses = { 0.6f };
+		std::vector<glm::vec2> positions = { starPosInWindow };
+		std::vector<float> intensities = { 80.0f };
+		std::vector<glm::vec3> colors = { { 0.5f, 0.3f, 1.0f } };
+		std::vector<float> radii = { 500.0f * camera->getZoom() };
+		std::vector<float> sharpnesses = { 0.1f };
+		std::vector<float> isStar = { 1.0f };
 		PK_ASSERT_QUICK(positions.size() == intensities.size() && positions.size() == colors.size()
-			&& positions.size() == radii.size() && positions.size() == sharpnesses.size());
+			&& positions.size() == radii.size() && positions.size() == sharpnesses.size() && positions.size() == isStar.size());
 
 		Shader* ppShader = PostProcessor::getShader();
 		ppShader->setUniform1i("uLightsCount", positions.size());
@@ -182,6 +186,7 @@ namespace GleamHouse
 		ppShader->setUniform3fv("uLightColors", colors.size(), colors.data());
 		ppShader->setUniform1fv("uLightRadii", radii.size(), radii.data());
 		ppShader->setUniform1fv("uLightSharpnesses", sharpnesses.size(), sharpnesses.data());
+		ppShader->setUniform1fv("uLightIsStarFlags", isStar.size(), isStar.data());
 
 		const glm::vec2 resolution = glm::vec2(PekanEngine::getWindow().getSize());
 		ppShader->setUniform2f("uResolution", resolution);
