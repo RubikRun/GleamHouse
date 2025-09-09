@@ -484,4 +484,22 @@ Next thing to do is
 Okay, first made the star increase its intensity and change its color from blue-ish to white gradually
 as player gets closer to star's center.
 
+Then, decided to experiment a little and added a whole new "Finished Level" scene
+that shows up when you finish the level and says
+    "Finished Level 1"
+Since we don't support text rendering yet in Pekan I added an image with the text written on it.
+This image is displayed in the "Finished Level" scene on a sprite.
+There's a fun detail that I added.
+At the end of the level the control is taken away from player,
+and the character starts rotating by itself.
+At this point it's so far into the star that everything is white,
+except their headphones which are blue.
+Those headphones look like the letter "I" so I decided to write the "Finished Level"
+text in a similar "font" and cutting out the first "I" so that player's character can be there
+and replace the letter.
+It looks nice.
+There were a couple of things that I had to do to make it work.
+Nothing worth mentioning tho, so leaving it at that.
+
+Done.
 }

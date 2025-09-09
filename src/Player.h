@@ -26,6 +26,18 @@ namespace GleamHouse
 
 		// Returns player's position, in world space
 		glm::vec2 getPosition() const { return m_sprite.getPosition(); }
+		// Returns player's size, in world space
+		glm::vec2 getSize() const;
+
+		// Sets player's rotation
+		void setRotation(float rotation) { m_sprite.setRotation(rotation); }
+		// Rotates player by some angle (angle is in radians)
+		void rotate(float deltaRotation) { m_sprite.rotate(deltaRotation); }
+
+		void setIsPlayable(bool isPlayable);
+
+		// Checks if player is currently rotated so that it's facing right
+		bool isFacingRight() const;
 
 	private: /* functions */
 
@@ -37,6 +49,10 @@ namespace GleamHouse
 
 		// Underlying sprite, used to render player's character
 		Pekan::Renderer2D::Sprite m_sprite;
+
+		// A flag indicating if player's character is currently playable,
+		// meaning that it can be controlled by user.
+		bool m_isPlayable = true;
 	};
 
 } // namespace GleamHouse

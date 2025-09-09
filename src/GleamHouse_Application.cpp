@@ -1,6 +1,7 @@
 #include "GleamHouse_Application.h"
 
 #include "GleamHouse_Scene.h"
+#include "FinishedLevel_Scene.h"
 
 #include "PekanEngine.h"
 using Pekan::PekanEngine;
@@ -13,10 +14,14 @@ namespace GleamHouse
 
 	bool GleamHouse_Application::_fillLayerStack(LayerStack& layerStack)
 	{
-		// Create demo scene
-		std::shared_ptr<GleamHouse_Scene> demoScene = std::make_shared<GleamHouse_Scene>(this);
-		// Add scene to application's layers
-		layerStack.pushLayer(demoScene);
+		std::shared_ptr<GleamHouse_Scene> mainScene = std::make_shared<GleamHouse_Scene>(this);
+		std::shared_ptr<FinishedLevel_Scene> finishedLevelScene = std::make_shared<FinishedLevel_Scene>(this);
+
+		finishedLevelScene->attachMainScene(mainScene.get());
+		mainScene->attachFinishedLevelScene(finishedLevelScene.get());
+
+		layerStack.pushLayer(mainScene);
+		layerStack.pushLayer(finishedLevelScene);
 
 		return true;
 	}

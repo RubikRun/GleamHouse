@@ -42,7 +42,7 @@ namespace GleamHouse
 		}
 
 		// TEMP
-		m_sprite.setPosition({ 45.0f, -20.0f });
+		//m_sprite.setPosition({ 40.0f, -25.0f });
 
 		return true;
 	}
@@ -59,6 +59,11 @@ namespace GleamHouse
 
 	void Player::update(const Floor* floors, int floorsCount)
 	{
+		if (!m_isPlayable)
+		{
+			return;
+		}
+
 		// If W/A/S/D key is pressed move player up/left/down/right,
 		// but only if it can be moved there.
 		if (PekanEngine::isKeyPressed(KeyCode::KEY_W))
@@ -105,6 +110,27 @@ namespace GleamHouse
 			// Set sprite's rotation to be that angle
 			m_sprite.setRotation(angle);
 		}
+	}
+
+	glm::vec2 Player::getSize() const
+	{
+		return { SIZE, SIZE };
+	}
+
+	void Player::setIsPlayable(bool isPlayable)
+	{
+		m_isPlayable = isPlayable;
+	}
+
+	bool Player::isFacingRight() const
+	{
+		const float angle = m_sprite.getRotation();
+		const float cosAngle = std::cosf(angle);
+		const float sinAngle = std::sinf(angle);
+		// Since player's texture is facing down by default,
+		// it will be facing right when sprite's angle is pointing up,
+		// which is equivalent to cos(angle) = 0 and sin(angle) = 1
+		return (std::fabsf(cosAngle) < 0.01f && std::fabsf(sinAngle + 1.0f) < 0.01f);
 	}
 
 	bool Player::canMoveBy(glm::vec2 delta, const Floor* floors, int floorsCount)

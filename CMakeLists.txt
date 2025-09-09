@@ -28,6 +28,8 @@ add_executable(GleamHouse
     src/GleamHouse_Application.cpp
     src/GleamHouse_Scene.h
     src/GleamHouse_Scene.cpp
+    src/FinishedLevel_Scene.h
+    src/FinishedLevel_Scene.cpp
     src/Floor.h
     src/Floor.cpp
     src/Player.h

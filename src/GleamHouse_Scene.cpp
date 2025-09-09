@@ -6,6 +6,7 @@
 #include "PekanTools.h"
 #include "PekanEngine.h"
 #include "PostProcessor.h"
+#include "FinishedLevel_Scene.h"
 
 using namespace Pekan::Graphics;
 using namespace Pekan::Renderer2D;
@@ -13,6 +14,7 @@ using namespace Pekan::Tools;
 using namespace Pekan;
 
 #define POST_PROCESSING_SHADER_FILEPATH "src/shaders/PostProcessingShader.glsl"
+#define PI 3.14159265f
 
 namespace GleamHouse
 {
@@ -50,8 +52,12 @@ namespace GleamHouse
 	static constexpr float STAR_BASE_INTENSITY = 80.0f;
 	static constexpr glm::vec3 STAR_BASE_COLOR = { 0.5f, 0.3f, 1.0f };
 
+	static constexpr float TARGET_DIST_TO_STAR = 18.0f;
+
     bool GleamHouse_Scene::init()
 	{
+		PK_ASSERT_QUICK(m_finishedLevelScene != nullptr);
+
         RenderState::enableMultisampleAntiAliasing();
 		// Enable and configure blending
 		RenderState::enableBlending();
@@ -102,8 +108,40 @@ namespace GleamHouse
 	void GleamHouse_Scene::update(double dt)
 	{
 		m_player.update(m_floors, FLOORS_COUNT);
+		updateDistToStar();
 		updateCamera();
 		updateLights();
+
+		if (m_distToStar < TARGET_DIST_TO_STAR)
+		{
+			m_player.setIsPlayable(false);
+			m_hasFinished = true;
+			m_finishedLevelScene->play();
+		}
+
+		if (m_hasFinished)
+		{
+			if (m_finishedLevelScene->getTime() > 3.0f)
+			{
+				static bool stoppedRotating = false;
+				if (!stoppedRotating)
+				{
+					if (m_player.isFacingRight())
+					{
+						stoppedRotating = true;
+						m_player.setRotation(-PI / 2.0f);
+					}
+					else
+					{
+						m_player.rotate(float(dt));
+					}
+				}
+			}
+			else
+			{
+				m_player.rotate(float(dt));
+			}
+		}
 
 		t += float(dt);
 	}
@@ -112,6 +150,7 @@ namespace GleamHouse
 	{
 		PostProcessor::beginFrame();
         Renderer2DSystem::beginFrame();
+		Renderer2DSystem::setCamera(m_camera);
         RenderCommands::clear();
 
 		m_wall.render();
@@ -142,6 +181,12 @@ namespace GleamHouse
 		m_wall.destroy();
 	}
 
+	glm::vec2 GleamHouse_Scene::getPlayerSizeNDC() const
+	{
+		const glm::vec2 playerSize = m_player.getSize();
+		return m_camera->worldToNdcSize(playerSize);
+	}
+
 	void GleamHouse_Scene::createCamera()
 	{
 		m_camera = std::make_shared<Camera2D>();
@@ -165,21 +210,16 @@ namespace GleamHouse
 
 	void GleamHouse_Scene::updateLights()
 	{
-		Camera2D_ConstPtr camera = Renderer2DSystem::getCamera();
-		if (camera == nullptr)
-		{
-			PK_LOG_ERROR("Cannot update lights because camera is null.", "Demo06");
-			return;
-		}
+		PK_ASSERT(m_camera != nullptr, "Cannot update lights because camera is null.", "Demo06");
 
-		const glm::vec2 starPosInWindow = camera->worldToWindow(STAR_POSITION);
+		const glm::vec2 starPosInWindow = m_camera->worldToWindowPosition(STAR_POSITION);
 		const float starIntensity = getStarIntensity();
 		const glm::vec3 starColor = getStarColor();
 
 		std::vector<glm::vec2> positions = { starPosInWindow };
 		std::vector<float> intensities = { starIntensity };
 		std::vector<glm::vec3> colors = { starColor };
-		std::vector<float> radii = { 500.0f * camera->getZoom() };
+		std::vector<float> radii = { 500.0f * m_camera->getZoom() };
 		std::vector<float> sharpnesses = { 0.1f };
 		std::vector<float> isStar = { 1.0f };
 		PK_ASSERT_QUICK(positions.size() == intensities.size() && positions.size() == colors.size()
@@ -198,32 +238,33 @@ namespace GleamHouse
 		ppShader->setUniform2f("uResolution", resolution);
 	}
 
-	float GleamHouse_Scene::getStarIntensity()
+	void GleamHouse_Scene::updateDistToStar()
 	{
 		const glm::vec2 playerPos = m_player.getPosition();
 		const glm::vec2 starToPlayerVec = playerPos - STAR_POSITION;
-		const float distance = std::sqrtf(starToPlayerVec.x * starToPlayerVec.x + starToPlayerVec.y * starToPlayerVec.y);
-		if (distance > 30.0f)
+		m_distToStar = std::sqrtf(starToPlayerVec.x * starToPlayerVec.x + starToPlayerVec.y * starToPlayerVec.y);
+	}
+
+	float GleamHouse_Scene::getStarIntensity()
+	{
+		if (m_distToStar > 30.0f)
 		{
 			return STAR_BASE_INTENSITY;
 		}
-		return (0.01f * (30.0f - distance) * (30.0f - distance) + 1.0f) * STAR_BASE_INTENSITY;
+		return (0.01f * (30.0f - m_distToStar) * (30.0f - m_distToStar) + 1.0f) * STAR_BASE_INTENSITY;
 	}
 
 	glm::vec3 GleamHouse_Scene::getStarColor()
 	{
-		const glm::vec2 playerPos = m_player.getPosition();
-		const glm::vec2 starToPlayerVec = playerPos - STAR_POSITION;
-		const float distance = std::sqrtf(starToPlayerVec.x * starToPlayerVec.x + starToPlayerVec.y * starToPlayerVec.y);
-		if (distance > 30.0f)
+		if (m_distToStar > 30.0f)
 		{
 			return STAR_BASE_COLOR;
 		}
-		if (distance < 10.0f)
+		if (m_distToStar < 10.0f)
 		{
 			return glm::vec3(1.0f, 1.0f, 1.0f);
 		}
-		const float inter = (30.0f - distance) / (30.0f - 10.0f);
+		const float inter = (30.0f - m_distToStar) / (30.0f - 10.0f);
 		return (1.0f - inter) * STAR_BASE_COLOR + inter * glm::vec3(1.0f, 1.0f, 1.0f);
 	}
 
