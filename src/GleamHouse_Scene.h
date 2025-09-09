@@ -11,6 +11,8 @@
 namespace GleamHouse
 {
 
+	class FinishedLevel_Scene;
+
 	class GleamHouse_Scene : public Pekan::Layer
 	{
 	public:
@@ -27,6 +29,12 @@ namespace GleamHouse
 
 		inline std::string getLayerName() const override { return "scene_layer"; }
 
+		// Returns player's size in NDC space
+		glm::vec2 getPlayerSizeNDC() const;
+
+		// Attaches the "finished level" scene
+		void attachFinishedLevelScene(FinishedLevel_Scene* finishedLevelScene) { m_finishedLevelScene = finishedLevelScene; }
+
 		// Number of floor pieces
 		static constexpr int FLOORS_COUNT = 21;
 
@@ -36,6 +44,8 @@ namespace GleamHouse
 		void updateCamera();
 
 		void updateLights();
+
+		void updateDistToStar();
 
 		// Returns star's intensity based on player's current position
 		float getStarIntensity();
@@ -58,6 +68,12 @@ namespace GleamHouse
 #endif
 
 		Pekan::Renderer2D::Camera2D_Ptr m_camera;
+
+		float m_distToStar = -1.0f;
+
+		bool m_hasFinished = false;
+
+		FinishedLevel_Scene* m_finishedLevelScene = nullptr;
 
 		float t = 0.0f;
 	};
