@@ -54,6 +54,9 @@ namespace GleamHouse
 
 	static constexpr float TARGET_DIST_TO_STAR = 18.0f;
 
+	static constexpr float TORCH_LIGHT_INTENSITY = 1.0f;
+	static constexpr glm::vec3 TORCH_LIGHT_COLOR = { 0.9f, 0.4f, 0.05f };
+
     bool GleamHouse_Scene::init()
 	{
 		PK_ASSERT_QUICK(m_finishedLevelScene != nullptr);
@@ -85,6 +88,9 @@ namespace GleamHouse
 			}
 		}
 
+		// Create torch
+		m_torch.create({ 3.5f, -3.5f });
+
 #if GLEAMHOUSE_WITH_DEBUG_GRAPHICS
 		// Create center square
 		{
@@ -108,6 +114,7 @@ namespace GleamHouse
 	void GleamHouse_Scene::update(double dt)
 	{
 		m_player.update(m_floors, FLOORS_COUNT);
+		m_torch.update(float(dt));
 		updateDistToStar();
 		updateCamera();
 		updateLights();
@@ -159,6 +166,7 @@ namespace GleamHouse
 			floor.render();
 		}
 		m_player.render();
+		m_torch.render();
 #if GLEAMHOUSE_WITH_DEBUG_GRAPHICS
 		m_centerSquare.render();
 #endif
@@ -173,6 +181,7 @@ namespace GleamHouse
 #if GLEAMHOUSE_WITH_DEBUG_GRAPHICS
 		m_centerSquare.destroy();
 #endif
+		m_torch.destroy();
 		for (Floor& floor : m_floors)
 		{
 			floor.destroy();
@@ -216,12 +225,14 @@ namespace GleamHouse
 		const float starIntensity = getStarIntensity();
 		const glm::vec3 starColor = getStarColor();
 
-		std::vector<glm::vec2> positions = { starPosInWindow };
-		std::vector<float> intensities = { starIntensity };
-		std::vector<glm::vec3> colors = { starColor };
-		std::vector<float> radii = { 500.0f * m_camera->getZoom() };
-		std::vector<float> sharpnesses = { 0.1f };
-		std::vector<float> isStar = { 1.0f };
+		const glm::vec2 torchInWindow = m_camera->worldToWindowPosition(m_torch.getFirePosition());
+
+		std::vector<glm::vec2> positions = { starPosInWindow, torchInWindow };
+		std::vector<float> intensities = { starIntensity, TORCH_LIGHT_INTENSITY };
+		std::vector<glm::vec3> colors = { starColor, TORCH_LIGHT_COLOR };
+		std::vector<float> radii = { 500.0f * m_camera->getZoom(), 50.0f * m_camera->getZoom() };
+		std::vector<float> sharpnesses = { 0.1f, 0.2f };
+		std::vector<float> isStar = { 1.0f, 0.0f };
 		PK_ASSERT_QUICK(positions.size() == intensities.size() && positions.size() == colors.size()
 			&& positions.size() == radii.size() && positions.size() == sharpnesses.size() && positions.size() == isStar.size());
 

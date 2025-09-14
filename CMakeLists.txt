@@ -40,6 +40,8 @@ add_executable(GleamHouse
     src/BoundingBox.cpp
     src/BoundingCircle.h
     src/BoundingCircle.cpp
+    src/Torch.h
+    src/Torch.cpp
 )
 
 # Set link libraries for GleamHouse

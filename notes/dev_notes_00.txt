@@ -503,3 +503,29 @@ Nothing worth mentioning tho, so leaving it at that.
 
 Done.
 }
+
+----------
+14.09.2025
+----------
+
+{
+Continue with the next thing to do:
+    6. Create torches
+        6.1. A torch will be rendered as a thin vertical rectangle,
+            together with a bunch of lines above it, forming a rhombus shape.
+            The lines will be random shades of red/orange,
+            changing every 1/N seconds, looking like fire.
+
+Okay, created a class
+    class Torch
+in 2 new files
+    Torch.h
+    Torch.cpp
+For now, it just renders a torch as a base rectangle with a bunch of lines on top forming a rhombus shape.
+Lines change colors every few frames.
+A light is passed to the post-processing shader on the position of torch's fire.
+Currently this is done manually in the main scene, we'll look into abstracting it away,
+so that multiple torches can be handled more easily and we can animate their lights.
+Looks good so far.
+
+}

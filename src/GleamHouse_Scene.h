@@ -7,6 +7,7 @@
 #include "Layer.h"
 #include "RectangleShape.h"
 #include "Camera2D.h"
+#include "Torch.h"
 
 namespace GleamHouse
 {
@@ -61,6 +62,8 @@ namespace GleamHouse
 		Player m_player;
 		// List of floor pieces defining the walkable area of the map
 		Floor m_floors[FLOORS_COUNT];
+
+		Torch m_torch;
 
 #if GLEAMHOUSE_WITH_DEBUG_GRAPHICS
 		// A small square to mark coordinate system's center
