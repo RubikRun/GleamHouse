@@ -42,6 +42,7 @@ add_executable(GleamHouse
     src/BoundingCircle.cpp
     src/Torch.h
     src/Torch.cpp
+    src/LightProperties.h
 )
 
 # Set link libraries for GleamHouse

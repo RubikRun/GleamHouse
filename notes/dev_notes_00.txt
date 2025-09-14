@@ -528,4 +528,18 @@ Currently this is done manually in the main scene, we'll look into abstracting i
 so that multiple torches can be handled more easily and we can animate their lights.
 Looks good so far.
 
+Now let's create a new struct
+    struct LightProperties
+in a new file
+    LightProperties.h
+It will be just a struct holding together the properties of a light - position, color, intensity, etc.
+Then let's create this static function
+    static void updatePostProcessingShader(const std::vector<LightProperties> lights)
+in
+    GleamHouse_Scene.cpp
+that updates the uniforms in the post-processing shader based on a given list of light properties.
+We will use that function, call it, in updateLights().
+Okay, done.
+Works the same, but code looks better now.
+
 }

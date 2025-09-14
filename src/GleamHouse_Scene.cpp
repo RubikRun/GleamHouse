@@ -7,6 +7,7 @@
 #include "PekanEngine.h"
 #include "PostProcessor.h"
 #include "FinishedLevel_Scene.h"
+#include "LightProperties.h"
 
 using namespace Pekan::Graphics;
 using namespace Pekan::Renderer2D;
@@ -217,36 +218,62 @@ namespace GleamHouse
 		m_camera->setPosition(newCameraPos);
 	}
 
-	void GleamHouse_Scene::updateLights()
+	// Updates post-processing shader with given list of lights
+	static void updatePostProcessingShader(const std::vector<LightProperties> lights)
 	{
-		PK_ASSERT(m_camera != nullptr, "Cannot update lights because camera is null.", "Demo06");
-
-		const glm::vec2 starPosInWindow = m_camera->worldToWindowPosition(STAR_POSITION);
-		const float starIntensity = getStarIntensity();
-		const glm::vec3 starColor = getStarColor();
-
-		const glm::vec2 torchInWindow = m_camera->worldToWindowPosition(m_torch.getFirePosition());
-
-		std::vector<glm::vec2> positions = { starPosInWindow, torchInWindow };
-		std::vector<float> intensities = { starIntensity, TORCH_LIGHT_INTENSITY };
-		std::vector<glm::vec3> colors = { starColor, TORCH_LIGHT_COLOR };
-		std::vector<float> radii = { 500.0f * m_camera->getZoom(), 50.0f * m_camera->getZoom() };
-		std::vector<float> sharpnesses = { 0.1f, 0.2f };
-		std::vector<float> isStar = { 1.0f, 0.0f };
-		PK_ASSERT_QUICK(positions.size() == intensities.size() && positions.size() == colors.size()
-			&& positions.size() == radii.size() && positions.size() == sharpnesses.size() && positions.size() == isStar.size());
-
 		Shader* ppShader = PostProcessor::getShader();
-		ppShader->setUniform1i("uLightsCount", positions.size());
+		ppShader->setUniform1i("uLightsCount", lights.size());
+
+		std::vector<glm::vec2> positions(lights.size(), { 0.0f, 0.0f });
+		std::vector<glm::vec3> colors(lights.size(), { 1.0f, 1.0f, 1.0f });
+		std::vector<float> intensities(lights.size(), 1.0f);
+		std::vector<float> radii(lights.size(), 10.0f);
+		std::vector<float> sharpnesses(lights.size(), 0.5f);
+		std::vector<float> isStar(lights.size(), 0.0f);
+		for (int i = 0; i < lights.size(); i++)
+		{
+			positions[i] = lights[i].position;
+			colors[i] = lights[i].color;
+			intensities[i] = lights[i].intensity;
+			radii[i] = lights[i].radius;
+			sharpnesses[i] = lights[i].sharpness;
+			isStar[i] = (lights[i].isStar ? 1.0f : 0.0f);
+		}
+
 		ppShader->setUniform2fv("uLightPositions", positions.size(), positions.data());
-		ppShader->setUniform1fv("uLightIntensities", intensities.size(), intensities.data());
 		ppShader->setUniform3fv("uLightColors", colors.size(), colors.data());
+		ppShader->setUniform1fv("uLightIntensities", intensities.size(), intensities.data());
 		ppShader->setUniform1fv("uLightRadii", radii.size(), radii.data());
 		ppShader->setUniform1fv("uLightSharpnesses", sharpnesses.size(), sharpnesses.data());
 		ppShader->setUniform1fv("uLightIsStarFlags", isStar.size(), isStar.data());
 
 		const glm::vec2 resolution = glm::vec2(PekanEngine::getWindow().getSize());
 		ppShader->setUniform2f("uResolution", resolution);
+	}
+
+	void GleamHouse_Scene::updateLights()
+	{
+		PK_ASSERT(m_camera != nullptr, "Cannot update lights because camera is null.", "Demo06");
+
+		std::vector<LightProperties> lights;
+
+		LightProperties starLight;
+		starLight.position = m_camera->worldToWindowPosition(STAR_POSITION);
+		starLight.color = getStarColor();
+		starLight.intensity = getStarIntensity();
+		starLight.radius = 500.0f * m_camera->getZoom();
+		starLight.sharpness = 0.1f;
+		starLight.isStar = true;
+
+		LightProperties torchLight;
+		torchLight.position = m_camera->worldToWindowPosition(m_torch.getFirePosition());
+		torchLight.color = TORCH_LIGHT_COLOR;
+		torchLight.intensity = TORCH_LIGHT_INTENSITY;
+		torchLight.radius = 50.0f * m_camera->getZoom();
+		torchLight.sharpness = 0.2f;
+		torchLight.isStar = false;
+
+		updatePostProcessingShader({ starLight, torchLight });
 	}
 
 	void GleamHouse_Scene::updateDistToStar()
