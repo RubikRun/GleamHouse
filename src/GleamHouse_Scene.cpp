@@ -55,11 +55,6 @@ namespace GleamHouse
 
 	static constexpr float TARGET_DIST_TO_STAR = 18.0f;
 
-	static constexpr float TORCH_LIGHT_INTENSITY = 1.0f;
-	static constexpr glm::vec3 TORCH_LIGHT_COLOR = { 1.0f, 0.8f, 0.4f };
-	static constexpr float TORCH_RADIUS = 100.0f;
-	static constexpr float TORCH_SHARPNESS = 0.2f;
-
 	static constexpr glm::vec2 TORCHES_POSITIONS[GleamHouse_Scene::TORCHES_COUNT] =
 	{
 		{ 23.5f, 8.5f },
@@ -291,12 +286,7 @@ namespace GleamHouse
 
 		for (int i = 0; i < TORCHES_COUNT; i++)
 		{
-			lights[i + 1].position = m_camera->worldToWindowPosition(m_torches[i].getFirePosition());
-			lights[i + 1].color = TORCH_LIGHT_COLOR;
-			lights[i + 1].intensity = TORCH_LIGHT_INTENSITY;
-			lights[i + 1].radius = TORCH_RADIUS * m_camera->getZoom();
-			lights[i + 1].sharpness = TORCH_SHARPNESS;
-			lights[i + 1].isStar = false;
+			lights[i + 1] = m_torches[i].getLightProperties();
 		}
 
 		updatePostProcessingShader(lights, TORCHES_COUNT + 1);

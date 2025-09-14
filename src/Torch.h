@@ -4,6 +4,7 @@
 #include "LineShape.h"
 #include "BoundingBox.h"
 #include <vector>
+#include "LightProperties.h"
 
 namespace GleamHouse
 {
@@ -28,9 +29,13 @@ namespace GleamHouse
 		// Returns position of the center of torch's fire, in world space
 		glm::vec2 getFirePosition() const;
 
+		// Returns light properties of torch's fire in current moment
+		LightProperties getLightProperties() const { return m_lightProperties; }
+
 	private: /* functions */
 
 		void updateFireColors();
+		void updateLightProperties();
 
 	private: /* variables */
 
@@ -41,6 +46,8 @@ namespace GleamHouse
 		Pekan::Renderer2D::RectangleShape m_base;
 		// A list of lines making up torch's fire
 		std::vector<Pekan::Renderer2D::LineShape> m_fire;
+
+		LightProperties m_lightProperties;
 
 		// Time passed since last fire colors update
 		float tSinceLastFireColorsUpdate = 0.0f;

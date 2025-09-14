@@ -2,6 +2,7 @@
 
 #include "PekanLogger.h"
 #include "Utils/PekanUtils.h"
+#include "Renderer2DSystem.h"
 
 using namespace Pekan::Renderer2D;
 using namespace Pekan::Utils;
@@ -21,6 +22,15 @@ namespace GleamHouse
 	static constexpr float THICKNESS_FIRE_LINE = 0.05f;
 	// Time between fire colors updates, in seconds
 	static constexpr float TIME_BETWEEN_FIRE_COLORS_UPDATES = 0.1f;
+
+	static constexpr float LIGHT_INTENSITY = 0.95f;
+	static constexpr float LIGHT_INTENSITY_AMPL = 0.05f;
+	static constexpr glm::vec3 LIGHT_COLOR = { 0.97f, 0.8f, 0.5f };
+	static constexpr glm::vec3 LIGHT_COLOR_AMPL = { 0.03f, 0.04f, 0.01f };
+	static constexpr float LIGHT_RADIUS = 150.0f;
+	static constexpr float LIGHT_RADIUS_AMPL = 2.0f;
+	static constexpr float LIGHT_SHARPNESS = 0.5f;
+	static constexpr float LIGHT_SHARPNESS_AMPL = 0.05f;
 
 	// Returns a random fire-ish color that can be used for a single line of the fire
 	static glm::vec4 getRandomFireColor()
@@ -94,6 +104,14 @@ namespace GleamHouse
 		m_boundingBox.min = position - SIZE_BASE / 2.0f;
 		m_boundingBox.max = position + SIZE_BASE / 2.0f + glm::vec2(0.0f, SIZE_FIRE.y);
 
+		// Initialize light properties
+		m_lightProperties.position = position;
+		m_lightProperties.color = LIGHT_COLOR;
+		m_lightProperties.intensity = LIGHT_INTENSITY;
+		m_lightProperties.radius = LIGHT_RADIUS;
+		m_lightProperties.sharpness = LIGHT_SHARPNESS;
+		m_lightProperties.isStar = false;
+
 		tSinceLastFireColorsUpdate = 0.0f;
 
 		return true;
@@ -119,9 +137,14 @@ namespace GleamHouse
 
 	void Torch::update(float dt)
 	{
+		Camera2D_ConstPtr camera = Renderer2DSystem::getCamera();
+		PK_ASSERT_QUICK(camera != nullptr);
+		m_lightProperties.position = camera->worldToWindowPosition(getFirePosition());
+
 		if (tSinceLastFireColorsUpdate > TIME_BETWEEN_FIRE_COLORS_UPDATES)
 		{
 			updateFireColors();
+			updateLightProperties();
 			tSinceLastFireColorsUpdate = 0.0f;
 		}
 
@@ -143,6 +166,14 @@ namespace GleamHouse
 		{
 			line.setColor(getRandomFireColor());
 		}
+	}
+
+	void Torch::updateLightProperties()
+	{
+		m_lightProperties.color = LIGHT_COLOR + getRandomFloat(-1.0f, 1.0f) * LIGHT_COLOR_AMPL;
+		m_lightProperties.intensity = LIGHT_INTENSITY + getRandomFloat(-1.0f, 1.0f) * LIGHT_INTENSITY_AMPL;
+		m_lightProperties.radius = LIGHT_RADIUS + getRandomFloat(-1.0f, 1.0f) * LIGHT_RADIUS_AMPL;
+		m_lightProperties.sharpness = LIGHT_SHARPNESS + getRandomFloat(-1.0f, 1.0f) * LIGHT_SHARPNESS_AMPL;
 	}
 
 } // namespace GleamHouse

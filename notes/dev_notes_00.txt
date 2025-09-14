@@ -515,6 +515,7 @@ Continue with the next thing to do:
             together with a bunch of lines above it, forming a rhombus shape.
             The lines will be random shades of red/orange,
             changing every 1/N seconds, looking like fire.
+        ...
 
 Okay, created a class
     class Torch
@@ -546,4 +547,16 @@ Next step is to support a list of torches in GleamHouse_Scene.
 Done.
 Also configured light properties of torches a little bit, now they look good.
 
+Finally, animated a torch's light properties to change randomly with some small amplitude,
+so that it looks like a light from fire. Looks better now.
+
+Considering this step done.
+We even did the next-next step accidentally
+    6. Create torches
+        ...
+        6.3. A torch will be passed to the post-processing shader as a light
+             with small intensity and a red-ish color.
+        ...
+
+Done.
 }
