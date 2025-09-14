@@ -542,4 +542,8 @@ We will use that function, call it, in updateLights().
 Okay, done.
 Works the same, but code looks better now.
 
+Next step is to support a list of torches in GleamHouse_Scene.
+Done.
+Also configured light properties of torches a little bit, now they look good.
+
 }

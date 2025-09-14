@@ -56,7 +56,15 @@ namespace GleamHouse
 	static constexpr float TARGET_DIST_TO_STAR = 18.0f;
 
 	static constexpr float TORCH_LIGHT_INTENSITY = 1.0f;
-	static constexpr glm::vec3 TORCH_LIGHT_COLOR = { 0.9f, 0.4f, 0.05f };
+	static constexpr glm::vec3 TORCH_LIGHT_COLOR = { 1.0f, 0.8f, 0.4f };
+	static constexpr float TORCH_RADIUS = 100.0f;
+	static constexpr float TORCH_SHARPNESS = 0.2f;
+
+	static constexpr glm::vec2 TORCHES_POSITIONS[GleamHouse_Scene::TORCHES_COUNT] =
+	{
+		{ 23.5f, 8.5f },
+		{ 28.5f, 18.5f },
+	};
 
     bool GleamHouse_Scene::init()
 	{
@@ -89,8 +97,15 @@ namespace GleamHouse
 			}
 		}
 
-		// Create torch
-		m_torch.create({ 3.5f, -3.5f });
+		// Create torches
+		for (int i = 0; i < TORCHES_COUNT; i++)
+		{
+			if (!m_torches[i].create(TORCHES_POSITIONS[i]))
+			{
+				PK_LOG_ERROR("Failed to create a torch.", "GleamHouse");
+				return false;
+			}
+		}
 
 #if GLEAMHOUSE_WITH_DEBUG_GRAPHICS
 		// Create center square
@@ -115,7 +130,10 @@ namespace GleamHouse
 	void GleamHouse_Scene::update(double dt)
 	{
 		m_player.update(m_floors, FLOORS_COUNT);
-		m_torch.update(float(dt));
+		for (int i = 0; i < TORCHES_COUNT; i++)
+		{
+			m_torches[i].update(float(dt));
+		}
 		updateDistToStar();
 		updateCamera();
 		updateLights();
@@ -167,7 +185,10 @@ namespace GleamHouse
 			floor.render();
 		}
 		m_player.render();
-		m_torch.render();
+		for (int i = 0; i < TORCHES_COUNT; i++)
+		{
+			m_torches[i].render();
+		}
 #if GLEAMHOUSE_WITH_DEBUG_GRAPHICS
 		m_centerSquare.render();
 #endif
@@ -182,7 +203,10 @@ namespace GleamHouse
 #if GLEAMHOUSE_WITH_DEBUG_GRAPHICS
 		m_centerSquare.destroy();
 #endif
-		m_torch.destroy();
+		for (int i = 0; i < TORCHES_COUNT; i++)
+		{
+			m_torches[i].destroy();
+		}
 		for (Floor& floor : m_floors)
 		{
 			floor.destroy();
@@ -219,18 +243,18 @@ namespace GleamHouse
 	}
 
 	// Updates post-processing shader with given list of lights
-	static void updatePostProcessingShader(const std::vector<LightProperties> lights)
+	static void updatePostProcessingShader(const LightProperties* lights, int lightsCount)
 	{
 		Shader* ppShader = PostProcessor::getShader();
-		ppShader->setUniform1i("uLightsCount", lights.size());
+		ppShader->setUniform1i("uLightsCount", lightsCount);
 
-		std::vector<glm::vec2> positions(lights.size(), { 0.0f, 0.0f });
-		std::vector<glm::vec3> colors(lights.size(), { 1.0f, 1.0f, 1.0f });
-		std::vector<float> intensities(lights.size(), 1.0f);
-		std::vector<float> radii(lights.size(), 10.0f);
-		std::vector<float> sharpnesses(lights.size(), 0.5f);
-		std::vector<float> isStar(lights.size(), 0.0f);
-		for (int i = 0; i < lights.size(); i++)
+		std::vector<glm::vec2> positions(lightsCount, { 0.0f, 0.0f });
+		std::vector<glm::vec3> colors(lightsCount, { 1.0f, 1.0f, 1.0f });
+		std::vector<float> intensities(lightsCount, 1.0f);
+		std::vector<float> radii(lightsCount, 10.0f);
+		std::vector<float> sharpnesses(lightsCount, 0.5f);
+		std::vector<float> isStar(lightsCount, 0.0f);
+		for (int i = 0; i < lightsCount; i++)
 		{
 			positions[i] = lights[i].position;
 			colors[i] = lights[i].color;
@@ -254,26 +278,28 @@ namespace GleamHouse
 	void GleamHouse_Scene::updateLights()
 	{
 		PK_ASSERT(m_camera != nullptr, "Cannot update lights because camera is null.", "Demo06");
+		PK_ASSERT_QUICK(TORCHES_COUNT >= 0);
 
-		std::vector<LightProperties> lights;
+		static LightProperties lights[TORCHES_COUNT + 1];
 
-		LightProperties starLight;
-		starLight.position = m_camera->worldToWindowPosition(STAR_POSITION);
-		starLight.color = getStarColor();
-		starLight.intensity = getStarIntensity();
-		starLight.radius = 500.0f * m_camera->getZoom();
-		starLight.sharpness = 0.1f;
-		starLight.isStar = true;
+		lights[0].position = m_camera->worldToWindowPosition(STAR_POSITION);
+		lights[0].color = getStarColor();
+		lights[0].intensity = getStarIntensity();
+		lights[0].radius = 500.0f * m_camera->getZoom();
+		lights[0].sharpness = 0.1f;
+		lights[0].isStar = true;
 
-		LightProperties torchLight;
-		torchLight.position = m_camera->worldToWindowPosition(m_torch.getFirePosition());
-		torchLight.color = TORCH_LIGHT_COLOR;
-		torchLight.intensity = TORCH_LIGHT_INTENSITY;
-		torchLight.radius = 50.0f * m_camera->getZoom();
-		torchLight.sharpness = 0.2f;
-		torchLight.isStar = false;
+		for (int i = 0; i < TORCHES_COUNT; i++)
+		{
+			lights[i + 1].position = m_camera->worldToWindowPosition(m_torches[i].getFirePosition());
+			lights[i + 1].color = TORCH_LIGHT_COLOR;
+			lights[i + 1].intensity = TORCH_LIGHT_INTENSITY;
+			lights[i + 1].radius = TORCH_RADIUS * m_camera->getZoom();
+			lights[i + 1].sharpness = TORCH_SHARPNESS;
+			lights[i + 1].isStar = false;
+		}
 
-		updatePostProcessingShader({ starLight, torchLight });
+		updatePostProcessingShader(lights, TORCHES_COUNT + 1);
 	}
 
 	void GleamHouse_Scene::updateDistToStar()

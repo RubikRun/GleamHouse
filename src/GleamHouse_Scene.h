@@ -38,6 +38,8 @@ namespace GleamHouse
 
 		// Number of floor pieces
 		static constexpr int FLOORS_COUNT = 21;
+		// Number of torches
+		static constexpr int TORCHES_COUNT = 2;
 
 	private: /* functions */
 
@@ -63,7 +65,7 @@ namespace GleamHouse
 		// List of floor pieces defining the walkable area of the map
 		Floor m_floors[FLOORS_COUNT];
 
-		Torch m_torch;
+		Torch m_torches[TORCHES_COUNT];
 
 #if GLEAMHOUSE_WITH_DEBUG_GRAPHICS
 		// A small square to mark coordinate system's center
