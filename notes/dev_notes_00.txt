@@ -560,3 +560,21 @@ We even did the next-next step accidentally
 
 Done.
 }
+
+----------
+15.09.2025
+----------
+
+{
+Today I tried developing Gleam House on another laptop with a smaller resolution,
+and I noticed that the radii of the lights are resolution-dependent.
+That's because in
+    PostProcessingShader.glsl
+we take in the radii in pixel space,
+and in C++ we set them in pixel space.
+Let's fix that.
+Let's use the camera in C++ to convert the radii that are constant in world space
+into window space, so that they become resolution-independent.
+Done.
+Now lights look the same on all resolutions.
+}

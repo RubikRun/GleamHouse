@@ -27,8 +27,8 @@ namespace GleamHouse
 	static constexpr float LIGHT_INTENSITY_AMPL = 0.05f;
 	static constexpr glm::vec3 LIGHT_COLOR = { 0.97f, 0.8f, 0.5f };
 	static constexpr glm::vec3 LIGHT_COLOR_AMPL = { 0.03f, 0.04f, 0.01f };
-	static constexpr float LIGHT_RADIUS = 150.0f;
-	static constexpr float LIGHT_RADIUS_AMPL = 2.0f;
+	static constexpr float LIGHT_RADIUS = 2.0f;
+	static constexpr float LIGHT_RADIUS_AMPL = 0.05f;
 	static constexpr float LIGHT_SHARPNESS = 0.5f;
 	static constexpr float LIGHT_SHARPNESS_AMPL = 0.05f;
 
@@ -108,7 +108,9 @@ namespace GleamHouse
 		m_lightProperties.position = position;
 		m_lightProperties.color = LIGHT_COLOR;
 		m_lightProperties.intensity = LIGHT_INTENSITY;
-		m_lightProperties.radius = LIGHT_RADIUS;
+		Camera2D_ConstPtr camera = Renderer2DSystem::getCamera();
+		PK_ASSERT_QUICK(camera != nullptr);
+		m_lightProperties.radius = camera->worldToWindowSize({ LIGHT_RADIUS, LIGHT_RADIUS }).x;
 		m_lightProperties.sharpness = LIGHT_SHARPNESS;
 		m_lightProperties.isStar = false;
 
@@ -170,9 +172,13 @@ namespace GleamHouse
 
 	void Torch::updateLightProperties()
 	{
+		Camera2D_ConstPtr camera = Renderer2DSystem::getCamera();
+		PK_ASSERT_QUICK(camera != nullptr);
+
 		m_lightProperties.color = LIGHT_COLOR + getRandomFloat(-1.0f, 1.0f) * LIGHT_COLOR_AMPL;
 		m_lightProperties.intensity = LIGHT_INTENSITY + getRandomFloat(-1.0f, 1.0f) * LIGHT_INTENSITY_AMPL;
-		m_lightProperties.radius = LIGHT_RADIUS + getRandomFloat(-1.0f, 1.0f) * LIGHT_RADIUS_AMPL;
+		const float randomRadius = LIGHT_RADIUS + getRandomFloat(-1.0f, 1.0f) * LIGHT_RADIUS_AMPL;
+		m_lightProperties.radius = camera->worldToWindowSize({ randomRadius, randomRadius }).x;;
 		m_lightProperties.sharpness = LIGHT_SHARPNESS + getRandomFloat(-1.0f, 1.0f) * LIGHT_SHARPNESS_AMPL;
 	}
 

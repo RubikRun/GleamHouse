@@ -70,6 +70,8 @@ namespace GleamHouse
 		RenderState::enableBlending();
 		RenderState::setBlendFunction(BlendFactor::SrcAlpha, BlendFactor::OneMinusSrcAlpha);
 
+		createCamera();
+
 		// Create background wall
 		if (!m_wall.create(MAP_BOTTOM_LEFT_POSITION, MAP_TOP_RIGHT_POSITION))
 		{
@@ -110,8 +112,6 @@ namespace GleamHouse
 		}
 #endif
 
-		createCamera();
-
 		if (!PostProcessor::init(POST_PROCESSING_SHADER_FILEPATH))
 		{
 			PK_LOG_ERROR("Failed to initialize PostProcessor", "Demo06");
@@ -124,13 +124,13 @@ namespace GleamHouse
 
 	void GleamHouse_Scene::update(double dt)
 	{
+		updateCamera();
 		m_player.update(m_floors, FLOORS_COUNT);
 		for (int i = 0; i < TORCHES_COUNT; i++)
 		{
 			m_torches[i].update(float(dt));
 		}
 		updateDistToStar();
-		updateCamera();
 		updateLights();
 
 		if (m_distToStar < TARGET_DIST_TO_STAR)
@@ -171,7 +171,6 @@ namespace GleamHouse
 	{
 		PostProcessor::beginFrame();
         Renderer2DSystem::beginFrame();
-		Renderer2DSystem::setCamera(m_camera);
         RenderCommands::clear();
 
 		m_wall.render();
@@ -194,7 +193,6 @@ namespace GleamHouse
 
 	void GleamHouse_Scene::exit()
 	{
-		m_camera->destroy();
 #if GLEAMHOUSE_WITH_DEBUG_GRAPHICS
 		m_centerSquare.destroy();
 #endif
@@ -208,6 +206,7 @@ namespace GleamHouse
 		}
 		m_player.destroy();
 		m_wall.destroy();
+		m_camera->destroy();
 	}
 
 	glm::vec2 GleamHouse_Scene::getPlayerSizeNDC() const
@@ -280,7 +279,7 @@ namespace GleamHouse
 		lights[0].position = m_camera->worldToWindowPosition(STAR_POSITION);
 		lights[0].color = getStarColor();
 		lights[0].intensity = getStarIntensity();
-		lights[0].radius = 500.0f * m_camera->getZoom();
+		lights[0].radius = m_camera->worldToWindowSize({5.7f, 5.7f}).x;
 		lights[0].sharpness = 0.1f;
 		lights[0].isStar = true;
 
