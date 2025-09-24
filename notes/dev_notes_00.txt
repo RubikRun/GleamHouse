@@ -578,3 +578,24 @@ into window space, so that they become resolution-independent.
 Done.
 Now lights look the same on all resolutions.
 }
+
+{
+Next step would be
+    6. Create torches
+    ...
+    6.2. A torch can be picked up and dropped down by pressing E.
+         It can't be inside a wall, so when player drops it down it will never go inside a wall.
+    ...
+
+Had a big detour to make this work.
+I had to implement transform hierarchy in Transformable2D in Pekan.
+Once done, implementing the picking up and dropping down was fairly easy.
+
+At the end I couldn't decide if I like it more when the torch rotates together with the player
+or if the torch stays always upright and to the right of the player.
+I like the rotating one a bit more, but can't decide, so kept them both.
+You can switch between them by toggling this macro:
+    #define TORCH_ROTATES_WITH_PLAYER 1
+
+Done.
+}

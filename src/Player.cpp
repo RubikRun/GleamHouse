@@ -6,6 +6,7 @@
 #include "Renderer2DSystem.h"
 #include "BoundingCircle.h"
 #include "PekanLogger.h"
+#include "Torch.h"
 
 using namespace Pekan;
 using namespace Pekan::Graphics;
@@ -27,6 +28,8 @@ namespace GleamHouse
 	static constexpr int BOUNDING_CIRCLE_SUBDIVS = 8;
 	// Maximum number of floor pieces that player can collide with at once
 	static constexpr int MAX_FLOOR_COLLISIONS = 6;
+	// Distance squared between torch and player when player can grab torch
+	static constexpr float DIST_SQ_CAN_GRAB_TORCH = 1.0f;
 
 	bool Player::create()
 	{
@@ -42,7 +45,12 @@ namespace GleamHouse
 		}
 
 		// TEMP
+
+		// Uncomment next line to spawn close to level's end
 		//m_sprite.setPosition({ 40.0f, -25.0f });
+
+		// Uncomment next line to spawn close to first torch
+		m_sprite.setPosition({ 16.0f, 9.0f });
 
 		return true;
 	}
@@ -131,6 +139,34 @@ namespace GleamHouse
 		// it will be facing right when sprite's angle is pointing up,
 		// which is equivalent to cos(angle) = 0 and sin(angle) = 1
 		return (std::fabsf(cosAngle) < 0.01f && std::fabsf(sinAngle + 1.0f) < 0.01f);
+	}
+
+	bool Player::canGrabTorch(const Torch& torch) const
+	{
+		const glm::vec2 torchPos = torch.getPosition();
+		const glm::vec2 playerPos = getPosition();
+		const float distSq = (torchPos.x - playerPos.x) * (torchPos.x - playerPos.x)
+			+ (torchPos.y - playerPos.y) * (torchPos.y - playerPos.y);
+
+		return distSq < DIST_SQ_CAN_GRAB_TORCH;
+	}
+
+	void Player::grabTorch(Torch& torch)
+	{
+		m_torch = &torch;
+		m_torch->onGrabbedByPlayer(this);
+	}
+
+	bool Player::hasTorch() const
+	{
+		return m_torch != nullptr;
+	}
+
+	void Player::dropTorch()
+	{
+		PK_ASSERT_QUICK(hasTorch());
+		m_torch->onDroppedByPlayer();
+		m_torch = nullptr;
 	}
 
 	bool Player::canMoveBy(glm::vec2 delta, const Floor* floors, int floorsCount)

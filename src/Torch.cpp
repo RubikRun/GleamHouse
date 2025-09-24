@@ -3,34 +3,81 @@
 #include "PekanLogger.h"
 #include "Utils/PekanUtils.h"
 #include "Renderer2DSystem.h"
+#include "Player.h"
 
 using namespace Pekan::Renderer2D;
 using namespace Pekan::Utils;
+
+#define TORCH_ROTATES_WITH_PLAYER 1
 
 namespace GleamHouse
 {
 
 	// Color of torch's base
-	static constexpr glm::vec4 COLOR_BASE = { 0.369f, 0.204f, 0.059f, 1.0f };
+	constexpr glm::vec4 COLOR_BASE = { 0.369f, 0.204f, 0.059f, 1.0f };
 	// Size of torch's base, in world space
-	static constexpr glm::vec2 SIZE_BASE = { 0.15f, 0.6f };
+	constexpr glm::vec2 SIZE_BASE = { 0.15f, 0.6f };
 	// Size of torch's fire, in world space
-	static constexpr glm::vec2 SIZE_FIRE = { SIZE_BASE.x * 1.5f, SIZE_BASE.y * 1.2f };
+	constexpr glm::vec2 SIZE_FIRE = { SIZE_BASE.x * 1.5f, SIZE_BASE.y * 1.2f };
 	// Total number of lines that torch's fire is made up of
-	static constexpr int COUNT_FIRE_LINES = 20;
+	constexpr int COUNT_FIRE_LINES = 20;
 	// Thickness of a line of fire
-	static constexpr float THICKNESS_FIRE_LINE = 0.05f;
+	constexpr float THICKNESS_FIRE_LINE = 0.05f;
 	// Time between fire colors updates, in seconds
-	static constexpr float TIME_BETWEEN_FIRE_COLORS_UPDATES = 0.1f;
+	constexpr float TIME_BETWEEN_FIRE_COLORS_UPDATES = 0.1f;
 
-	static constexpr float LIGHT_INTENSITY = 0.95f;
-	static constexpr float LIGHT_INTENSITY_AMPL = 0.05f;
-	static constexpr glm::vec3 LIGHT_COLOR = { 0.97f, 0.8f, 0.5f };
-	static constexpr glm::vec3 LIGHT_COLOR_AMPL = { 0.03f, 0.04f, 0.01f };
-	static constexpr float LIGHT_RADIUS = 2.0f;
-	static constexpr float LIGHT_RADIUS_AMPL = 0.05f;
-	static constexpr float LIGHT_SHARPNESS = 0.5f;
-	static constexpr float LIGHT_SHARPNESS_AMPL = 0.05f;
+	constexpr float LIGHT_INTENSITY = 0.95f;
+	constexpr float LIGHT_INTENSITY_AMPL = 0.05f;
+	constexpr glm::vec3 LIGHT_COLOR = { 0.97f, 0.8f, 0.5f };
+	constexpr glm::vec3 LIGHT_COLOR_AMPL = { 0.03f, 0.04f, 0.01f };
+	constexpr float LIGHT_RADIUS = 2.0f;
+	constexpr float LIGHT_RADIUS_AMPL = 0.05f;
+	constexpr float LIGHT_SHARPNESS = 0.5f;
+	constexpr float LIGHT_SHARPNESS_AMPL = 0.05f;
+
+	// Offset from player's position to a torch's position when player holds the torch, in world space
+	constexpr glm::vec2 OFFSET_FROM_PLAYER = glm::vec2(0.5f, -0.1f);
+	// Fire's local position, relative to torch's base
+	constexpr glm::vec2 FIRE_LOCAL_POSITION = { 0.0f, SIZE_BASE.y / 2.0f + SIZE_FIRE.y / 2.0f };
+
+	std::vector<glm::vec4> getFireModel()
+	{
+		std::vector<glm::vec4> fireModel;
+		fireModel.resize(COUNT_FIRE_LINES);
+
+		// Horizontal fffset between two consecutive lines in the middle of the fire
+		const float lineOffset = SIZE_FIRE.x / float(COUNT_FIRE_LINES / 2 - 1);
+		// Point where the bottom half of fire lines join together
+		const glm::vec2 bottomJoinPoint = { 0.0f, -SIZE_FIRE.y / 2.0f };
+		// Point where the top half of fire lines join together
+		const glm::vec2 topJoinPoint = { 0.0f, SIZE_FIRE.y / 2.0f };
+		// X coordinate of fire's leftmost point
+		const float xLeft = -SIZE_FIRE.x / 2.0f;
+
+		// Create bottom half of fire
+		for (int i = 0; i < COUNT_FIRE_LINES / 2; i++)
+		{
+			fireModel[i] =
+			{
+				bottomJoinPoint.x, bottomJoinPoint.y,
+				xLeft + lineOffset * float(i), +SIZE_FIRE.y / 100.0f
+			};
+		}
+		// Create top half of fire
+		for (int i = 0; i < COUNT_FIRE_LINES / 2; i++)
+		{
+			fireModel[i + COUNT_FIRE_LINES / 2] =
+			{
+				topJoinPoint.x, topJoinPoint.y,
+				xLeft + lineOffset * float(i), -SIZE_FIRE.y / 100.0f
+			};
+		}
+
+		return fireModel;
+	}
+
+	// A list of coordinates of lines making up torch's fire, in local space
+	const std::vector<glm::vec4> g_fireModel = getFireModel();
 
 	// Returns a random fire-ish color that can be used for a single line of the fire
 	static glm::vec4 getRandomFireColor()
@@ -57,52 +104,27 @@ namespace GleamHouse
 
 		// Create base
 		m_base.create(SIZE_BASE.x, SIZE_BASE.y);
-		m_base.setPosition(position);
 		m_base.setColor(COLOR_BASE);
+		m_base.setPosition(position);
 
 		// Create fire
 		{
 			PK_ASSERT_QUICK(m_fire.empty());
 			m_fire.resize(COUNT_FIRE_LINES);
 
-			// Offset between two consecutive lines in the middle of the fire
-			const float lineOffset = SIZE_FIRE.x / float(COUNT_FIRE_LINES / 2 - 1);
-			// Point where the bottom half of fire lines join together
-			const glm::vec2 bottomJoinPoint = { position.x, position.y + SIZE_BASE.y / 2.0f };
-			// Point where the top half of fire lines join together
-			const glm::vec2 topJoinPoint = { bottomJoinPoint.x, bottomJoinPoint.y + SIZE_FIRE.y };
-			// Y coordinate of fire's middle
-			const float yMiddle = bottomJoinPoint.y + SIZE_FIRE.y / 2.0f;
-			// X coordinate of fire's leftmost point
-			const float xLeft = position.x - SIZE_FIRE.x / 2.0f;
-
-			// Create bottom half of fire
-			for (int i = 0; i < COUNT_FIRE_LINES / 2; i++)
+			for (int i = 0; i < COUNT_FIRE_LINES; i++)
 			{
 				m_fire[i].create
 				(
-					bottomJoinPoint,
-					{ xLeft + lineOffset * float(i), yMiddle + SIZE_FIRE.y / 100.0f }
+					{ g_fireModel[i].x, g_fireModel[i].y },
+					{ g_fireModel[i].z, g_fireModel[i].w }
 				);
 				m_fire[i].setColor(getRandomFireColor());
 				m_fire[i].setThickness(THICKNESS_FIRE_LINE);
-			}
-			// Create top half of fire
-			for (int i = 0; i < COUNT_FIRE_LINES / 2; i++)
-			{
-				m_fire[i + COUNT_FIRE_LINES / 2].create
-				(
-					topJoinPoint,
-					{ xLeft + lineOffset * float(i), yMiddle - SIZE_FIRE.y / 100.0f }
-				);
-				m_fire[i + COUNT_FIRE_LINES / 2].setColor(getRandomFireColor());
-				m_fire[i + COUNT_FIRE_LINES / 2].setThickness(THICKNESS_FIRE_LINE);
+				m_fire[i].setParent(&m_base);
+				m_fire[i].setPosition(FIRE_LOCAL_POSITION);
 			}
 		}
-
-		// Create bounding box
-		m_boundingBox.min = position - SIZE_BASE / 2.0f;
-		m_boundingBox.max = position + SIZE_BASE / 2.0f + glm::vec2(0.0f, SIZE_FIRE.y);
 
 		// Initialize light properties
 		m_lightProperties.position = position;
@@ -139,47 +161,85 @@ namespace GleamHouse
 
 	void Torch::update(float dt)
 	{
-		Camera2D_ConstPtr camera = Renderer2DSystem::getCamera();
-		PK_ASSERT_QUICK(camera != nullptr);
-		m_lightProperties.position = camera->worldToWindowPosition(getFirePosition());
-
-		if (tSinceLastFireColorsUpdate > TIME_BETWEEN_FIRE_COLORS_UPDATES)
+#if !TORCH_ROTATES_WITH_PLAYER
+		if (m_player != nullptr)
 		{
-			updateFireColors();
-			updateLightProperties();
-			tSinceLastFireColorsUpdate = 0.0f;
+			m_base.setPosition(m_player->getPosition() + OFFSET_FROM_PLAYER);
 		}
+#endif
+
+		updateFire();
 
 		tSinceLastFireColorsUpdate += dt;
 	}
 
+	void Torch::onGrabbedByPlayer(const Player* player)
+	{
+		PK_ASSERT_QUICK(m_player == nullptr);
+		PK_ASSERT_QUICK(player != nullptr);
+		m_player = player;
+
+#if TORCH_ROTATES_WITH_PLAYER
+		m_base.setParent(player->getTransformable2D());
+		m_base.setPosition(OFFSET_FROM_PLAYER);
+#endif
+	}
+
+	void Torch::onDroppedByPlayer()
+	{
+		if (m_player == nullptr)
+		{
+			PK_ASSERT_QUICK(false);
+			return;
+		}
+
+#if TORCH_ROTATES_WITH_PLAYER
+		m_base.setParent(nullptr);
+#endif
+		m_base.setPosition(m_player->getPosition());
+
+		m_player = nullptr;
+	}
+
+	glm::vec2 Torch::getPosition() const
+	{
+		return m_base.getPositionInWorld();
+	}
+
 	glm::vec2 Torch::getFirePosition() const
 	{
-		return
+		if (m_fire.empty())
 		{
-			m_position.x,
-			m_position.y + SIZE_BASE.y / 2.0f + SIZE_FIRE.y / 2.0f
-		};
-	}
-
-	void Torch::updateFireColors()
-	{
-		for (LineShape& line : m_fire)
-		{
-			line.setColor(getRandomFireColor());
+			return { 0.0f, 0.0f };
 		}
+		return m_fire[0].getPositionInWorld();
 	}
 
-	void Torch::updateLightProperties()
+	void Torch::updateFire()
 	{
 		Camera2D_ConstPtr camera = Renderer2DSystem::getCamera();
 		PK_ASSERT_QUICK(camera != nullptr);
 
-		m_lightProperties.color = LIGHT_COLOR + getRandomFloat(-1.0f, 1.0f) * LIGHT_COLOR_AMPL;
-		m_lightProperties.intensity = LIGHT_INTENSITY + getRandomFloat(-1.0f, 1.0f) * LIGHT_INTENSITY_AMPL;
-		const float randomRadius = LIGHT_RADIUS + getRandomFloat(-1.0f, 1.0f) * LIGHT_RADIUS_AMPL;
-		m_lightProperties.radius = camera->worldToWindowSize({ randomRadius, randomRadius }).x;;
-		m_lightProperties.sharpness = LIGHT_SHARPNESS + getRandomFloat(-1.0f, 1.0f) * LIGHT_SHARPNESS_AMPL;
+		m_lightProperties.position = camera->worldToWindowPosition(getFirePosition());
+
+		if (tSinceLastFireColorsUpdate > TIME_BETWEEN_FIRE_COLORS_UPDATES)
+		{
+			// Update light properties with new random values
+			{
+				m_lightProperties.color = LIGHT_COLOR + getRandomFloat(-1.0f, 1.0f) * LIGHT_COLOR_AMPL;
+				m_lightProperties.intensity = LIGHT_INTENSITY + getRandomFloat(-1.0f, 1.0f) * LIGHT_INTENSITY_AMPL;
+				const float randomRadius = LIGHT_RADIUS + getRandomFloat(-1.0f, 1.0f) * LIGHT_RADIUS_AMPL;
+				m_lightProperties.radius = camera->worldToWindowSize({ randomRadius, randomRadius }).x;;
+				m_lightProperties.sharpness = LIGHT_SHARPNESS + getRandomFloat(-1.0f, 1.0f) * LIGHT_SHARPNESS_AMPL;
+			}
+			// Update fire colors with new random values
+			for (int i = 0; i < m_fire.size(); i++)
+			{
+				m_fire[i].setColor(getRandomFireColor());
+			}
+
+			tSinceLastFireColorsUpdate = 0.0f;
+		}
 	}
 
 } // namespace GleamHouse
