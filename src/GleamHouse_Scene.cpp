@@ -8,6 +8,7 @@
 #include "PostProcessor.h"
 #include "FinishedLevel_Scene.h"
 #include "LightProperties.h"
+#include "Events/KeyEvents.h"
 
 using namespace Pekan::Graphics;
 using namespace Pekan::Renderer2D;
@@ -213,6 +214,24 @@ namespace GleamHouse
 	{
 		const glm::vec2 playerSize = m_player.getSize();
 		return m_camera->worldToNdcSize(playerSize);
+	}
+
+	bool GleamHouse_Scene::onKeyPressed(const KeyPressedEvent& event)
+	{
+		if (event.getKeyCode() == KeyCode::KEY_E)
+		{
+			for (Torch& torch : m_torches)
+			{
+				if (m_player.canGrabTorch(torch))
+				{
+					torch.grabByPlayer(&m_player);
+					break;
+				}
+			}
+			return true;
+		}
+
+		return false;
 	}
 
 	void GleamHouse_Scene::createCamera()

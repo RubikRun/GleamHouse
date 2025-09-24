@@ -86,12 +86,12 @@ namespace Renderer2D
     {
         PK_ASSERT(isValid(), "Trying to update world vertices of a RectangleShape that is not yet created.", "Pekan");
 
-        const glm::mat3& transformMatrix = getTransformMatrix();
+        const glm::mat3& worldMatrix = getWorldMatrix();
         // Calculate world vertex positions by applying the transform matrix to the local vertex positions
-        m_verticesWorld[0].position = glm::vec2(transformMatrix * glm::vec3(m_verticesLocal[0], 1.0f));
-        m_verticesWorld[1].position = glm::vec2(transformMatrix * glm::vec3(m_verticesLocal[1], 1.0f));
-        m_verticesWorld[2].position = glm::vec2(transformMatrix * glm::vec3(m_verticesLocal[2], 1.0f));
-        m_verticesWorld[3].position = glm::vec2(transformMatrix * glm::vec3(m_verticesLocal[3], 1.0f));
+        m_verticesWorld[0].position = glm::vec2(worldMatrix * glm::vec3(m_verticesLocal[0], 1.0f));
+        m_verticesWorld[1].position = glm::vec2(worldMatrix * glm::vec3(m_verticesLocal[1], 1.0f));
+        m_verticesWorld[2].position = glm::vec2(worldMatrix * glm::vec3(m_verticesLocal[2], 1.0f));
+        m_verticesWorld[3].position = glm::vec2(worldMatrix * glm::vec3(m_verticesLocal[3], 1.0f));
 
 #if PEKAN_USE_1D_TEXTURE_FOR_2D_SHAPES_BATCH
         // Set "shapeIndex" attribute of each vertex to be shape's index

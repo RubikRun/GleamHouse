@@ -175,12 +175,12 @@ namespace Renderer2D
     {
         PK_ASSERT(isValid(), "Trying to update world vertices of a PolygonShape that is not yet created.", "Pekan");
 
-        const glm::mat3& transformMatrix = getTransformMatrix();
+        const glm::mat3& worldMatrix = getWorldMatrix();
         m_verticesWorld.resize(m_verticesLocal.size());
         for (size_t i = 0; i < m_verticesLocal.size(); i++)
         {
             // Calculate world vertex positions by applying the transform matrix to the local vertex positions
-            m_verticesWorld[i].position = glm::vec2(transformMatrix * glm::vec3(m_verticesLocal[i], 1.0f));
+            m_verticesWorld[i].position = glm::vec2(worldMatrix * glm::vec3(m_verticesLocal[i], 1.0f));
 
 #if PEKAN_USE_1D_TEXTURE_FOR_2D_SHAPES_BATCH
             // Set "shapeIndex" attribute to be shape's index

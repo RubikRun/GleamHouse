@@ -578,3 +578,15 @@ into window space, so that they become resolution-independent.
 Done.
 Now lights look the same on all resolutions.
 }
+
+{
+Next step would be
+    6. Create torches
+    ...
+    6.2. A torch can be picked up and dropped down by pressing E.
+         It can't be inside a wall, so when player drops it down it will never go inside a wall.
+    ...
+    
+TODO NEXT: think about it some more.If nothing better comes to mind, just keep a list of children pointers
+           and call a function on them whenever parent is updated.
+}

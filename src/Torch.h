@@ -9,13 +9,14 @@
 namespace GleamHouse
 {
 
+	class Player;
+
 	// A class representing a torch in Gleam House
 	class Torch
 	{
 
 	public:
 
-		// @param[in] position - position of the center of torch's base, in world space
 		bool create(glm::vec2 position);
 		void destroy();
 
@@ -23,8 +24,9 @@ namespace GleamHouse
 
 		void update(float dt);
 
-		// Returns torch's bounding box, determining how the torch will collide with other objects
-		BoundingBox getBoundingBox() const { return m_boundingBox; }
+		void grabByPlayer(const Player* player);
+
+		glm::vec2 getPosition() const;
 
 		// Returns position of the center of torch's fire, in world space
 		glm::vec2 getFirePosition() const;
@@ -34,13 +36,14 @@ namespace GleamHouse
 
 	private: /* functions */
 
-		void updateFireColors();
-		void updateLightProperties();
+		void updateBase();
+		void updateFire();
 
 	private: /* variables */
 
-		// Position of the center of torch's base, in world space
-		glm::vec2 m_position = { -1.0f, -1.0f };
+		const Player* m_player = nullptr;
+
+		glm::vec2 m_position = { 0.0f, 0.0f };
 
 		// Torch's rectangular base
 		Pekan::Renderer2D::RectangleShape m_base;
@@ -51,9 +54,6 @@ namespace GleamHouse
 
 		// Time passed since last fire colors update
 		float tSinceLastFireColorsUpdate = 0.0f;
-
-		// Torch's bounding box, determining how the torch will collide with other objects
-		BoundingBox m_boundingBox;
 	};
 
 } // namespace GleamHouse
