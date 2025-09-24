@@ -43,6 +43,8 @@ namespace GleamHouse
 
 	private: /* functions */
 
+		bool onKeyPressed(const Pekan::KeyPressedEvent& event) override;
+
 		void createCamera();
 		void updateCamera();
 

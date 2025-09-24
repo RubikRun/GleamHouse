@@ -6,6 +6,8 @@
 namespace GleamHouse
 {
 
+	class Torch;
+
 	// A class representing player's character in Gleam House.
 	// Player's character
 	// - is a square sprite
@@ -29,6 +31,8 @@ namespace GleamHouse
 		// Returns player's size, in world space
 		glm::vec2 getSize() const;
 
+		// Returns player's rotation, in radians
+		float getRotation() const { return m_sprite.getRotation(); }
 		// Sets player's rotation
 		void setRotation(float rotation) { m_sprite.setRotation(rotation); }
 		// Rotates player by some angle (angle is in radians)
@@ -38,6 +42,11 @@ namespace GleamHouse
 
 		// Checks if player is currently rotated so that it's facing right
 		bool isFacingRight() const;
+
+		// Checks if a given torch is close enough to player so that player can grab it
+		bool canGrabTorch(const Torch& torch) const;
+
+		const Pekan::Renderer2D::Transformable2D* getTransformable2D() const { return static_cast<const Pekan::Renderer2D::Transformable2D*>(&m_sprite); }
 
 	private: /* functions */
 

@@ -29,8 +29,8 @@ namespace GleamHouse
 	ApplicationProperties GleamHouse_Application::getProperties() const
 	{
 		ApplicationProperties props;
-		props.windowProperties.width = 1200;
-		props.windowProperties.height = 600;
+		props.windowProperties.width = 1800;
+		props.windowProperties.height = 900;
 		props.fps = 60.0;
 		props.numberOfSamples = 16;
 		props.windowProperties.title = getName();
