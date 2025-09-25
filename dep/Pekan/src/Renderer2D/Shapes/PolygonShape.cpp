@@ -201,8 +201,6 @@ namespace Renderer2D
 #endif
         }
 
-        m_needUpdateVerticesWorld = false;
-
 #if PEKAN_ENABLE_2D_SHAPES_ORIENTATION_CHECKING
         if (RenderState::isEnabledFaceCulling())
         {
@@ -218,6 +216,11 @@ namespace Renderer2D
             }
         }
 #endif
+
+        // Cache change ID of the transform that we just used to update world vertices
+        m_cachedTransformChangeId = Transformable2D::getChangeId();
+
+        m_needUpdateVerticesWorld = false;
     }
 
 } // namespace Renderer2D

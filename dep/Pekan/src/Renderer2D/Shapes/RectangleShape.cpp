@@ -112,6 +112,9 @@ namespace Renderer2D
         m_verticesWorld[3].color = m_color;
 #endif
 
+        // Cache change ID of the transform that we just used to update world vertices
+        m_cachedTransformChangeId = Transformable2D::getChangeId();
+
         m_needUpdateVerticesWorld = false;
     }
 

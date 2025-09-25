@@ -102,6 +102,9 @@ namespace Renderer2D
 #endif
         }
 
+        // Cache change ID of the transform that we just used to update world vertices
+        m_cachedTransformChangeId = Transformable2D::getChangeId();
+
         m_needUpdateVerticesWorld = false;
     }
 
