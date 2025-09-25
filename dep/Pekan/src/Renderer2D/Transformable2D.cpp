@@ -11,56 +11,43 @@ namespace Renderer2D
     void Transformable2D::setParent(const Transformable2D* parent)
     {
         m_parent = parent;
-        m_needUpdateWorldMatrix = true;
-        onTransformChanged();
+        registerParentChange();
     }
 
     void Transformable2D::setPosition(glm::vec2 position)
     {
         m_position = position;
-        m_needUpdateLocalMatrix = true;
-        m_needUpdateWorldMatrix = true;
-        onTransformChanged();
+        registerLocalChange();
     }
 
     void Transformable2D::setRotation(float rotation)
     {
         m_rotation = rotation;
-        m_needUpdateLocalMatrix = true;
-        m_needUpdateWorldMatrix = true;
-        onTransformChanged();
+        registerLocalChange();
     }
 
     void Transformable2D::setScale(glm::vec2 scale)
     {
         m_scale = scale;
-        m_needUpdateLocalMatrix = true;
-        m_needUpdateWorldMatrix = true;
-        onTransformChanged();
+        registerLocalChange();
     }
 
     void Transformable2D::move(glm::vec2 deltaPosition)
     {
         m_position += deltaPosition;
-        m_needUpdateLocalMatrix = true;
-        m_needUpdateWorldMatrix = true;
-        onTransformChanged();
+        registerLocalChange();
     }
 
     void Transformable2D::rotate(float deltaRotation)
     {
         m_rotation += deltaRotation;
-        m_needUpdateLocalMatrix = true;
-        m_needUpdateWorldMatrix = true;
-        onTransformChanged();
+        registerLocalChange();
     }
 
     void Transformable2D::scale(glm::vec2 deltaScale)
     {
         m_scale *= deltaScale;
-        m_needUpdateLocalMatrix = true;
-        m_needUpdateWorldMatrix = true;
-        onTransformChanged();
+        registerLocalChange();
     }
 
     glm::vec2 Transformable2D::getPositionInWorld() const
@@ -107,7 +94,7 @@ namespace Renderer2D
 
     const glm::mat3& Transformable2D::getWorldMatrix() const
     {
-        if (m_parent != nullptr && m_parent->m_needUpdateWorldMatrix)
+        if (m_parent != nullptr && m_cachedParentChangeId < m_parent->m_changeId)
         {
             m_needUpdateWorldMatrix = true;
         }
@@ -116,6 +103,16 @@ namespace Renderer2D
             updateWorldMatrix();
         }
         return m_worldMatrix;
+    }
+
+    unsigned Transformable2D::getChangeId() const
+    {
+        if (m_parent != nullptr && m_cachedParentChangeId < m_parent->m_changeId)
+        {
+            updateWorldMatrix();
+        }
+
+        return m_changeId;
     }
 
     void Transformable2D::_create()
@@ -129,6 +126,8 @@ namespace Renderer2D
         m_worldMatrix = glm::mat3(1.0f);
         m_needUpdateLocalMatrix = false;
         m_needUpdateWorldMatrix = false;
+        m_changeId = 0;
+        m_cachedParentChangeId = 0;
     }
 
     void Transformable2D::_destroy()
@@ -174,6 +173,9 @@ namespace Renderer2D
         {
             const glm::mat3& parentWorldMatrix = m_parent->getWorldMatrix();
             m_worldMatrix = parentWorldMatrix * localMatrix;
+
+            m_cachedParentChangeId = m_parent->m_changeId;
+            m_changeId++;
         }
         else
         {
@@ -181,6 +183,19 @@ namespace Renderer2D
         }
 
         m_needUpdateWorldMatrix = false;
+    }
+
+    void Transformable2D::registerLocalChange()
+    {
+        m_needUpdateLocalMatrix = true;
+        m_needUpdateWorldMatrix = true;
+        m_changeId++;
+    }
+
+    void Transformable2D::registerParentChange()
+    {
+        m_needUpdateWorldMatrix = true;
+        m_changeId++;
     }
 
 } // namespace Renderer2D

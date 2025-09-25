@@ -74,6 +74,11 @@ namespace Renderer2D
         }
 #endif
 
+        if (m_cachedTransformChangeId < Transformable2D::getChangeId())
+        {
+            m_needUpdateVerticesWorld = true;
+        }
+
         if (m_needUpdateVerticesLocal)
         {
             updateVerticesLocal();
@@ -87,6 +92,11 @@ namespace Renderer2D
 
     const unsigned* PolygonShape::getIndices() const
     {
+        if (m_cachedTransformChangeId < Transformable2D::getChangeId())
+        {
+            m_needUpdateVerticesWorld = true;
+        }
+
         // Indices are updated together with local vertices and world vertices,
         // so update local vertices and world vertices here if needed.
         if (m_needUpdateVerticesLocal)

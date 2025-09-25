@@ -93,6 +93,11 @@ namespace Renderer2D
         }
 #endif
 
+        if (m_cachedTransformChangeId < Transformable2D::getChangeId())
+        {
+            m_needUpdateVerticesWorld = true;
+        }
+
         if (m_needUpdateVerticesWorld)
         {
             updateVerticesWorld();
@@ -118,6 +123,11 @@ namespace Renderer2D
 #if PEKAN_ENABLE_2D_SHAPES_ORIENTATION_CHECKING
     void TriangleShape::updateIndices() const
     {
+        if (m_cachedTransformChangeId < Transformable2D::getChangeId())
+        {
+            m_needUpdateVerticesWorld = true;
+        }
+
         // If face culling is disabled it doesn't matter if triangle is CW or CCW
         // so we can keep indices in whatever order they are.
         if (!RenderState::isEnabledFaceCulling())

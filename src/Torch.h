@@ -36,7 +36,6 @@ namespace GleamHouse
 
 	private: /* functions */
 
-		void updateBase();
 		void updateFire();
 
 	private: /* variables */

@@ -53,6 +53,9 @@ namespace Renderer2D
 		// then with its own position, rotation and scale
 		const glm::mat3& getWorldMatrix() const;
 
+		// Returns object's current change ID
+		unsigned getChangeId() const;
+
 	protected:
 
 		// Creates a 2D transformable object.
@@ -72,6 +75,13 @@ namespace Renderer2D
 		void updateLocalMatrix() const;
 		// Updates the world matrix with current position, rotation and scale, and with current parent's transform.
 		void updateWorldMatrix() const;
+
+		// Registers a change to the local transform.
+		// To be called whenever position, rotation or scale change.
+		void registerLocalChange();
+		// Registers a change to parent's transform.
+		// To be called whenever parent's transform changes or a new parent is set.
+		void registerParentChange();
 
 	private: /* variables */
 
@@ -98,6 +108,10 @@ namespace Renderer2D
 		mutable bool m_needUpdateLocalMatrix = false;
 		// Flag indicating if world matrix has to be updated before use
 		mutable bool m_needUpdateWorldMatrix = false;
+
+		mutable unsigned m_changeId = 0;
+
+		mutable unsigned m_cachedParentChangeId = 0;
 	};
 
 } // namespace Renderer2D

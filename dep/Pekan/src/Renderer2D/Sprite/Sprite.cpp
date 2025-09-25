@@ -20,6 +20,7 @@ namespace Renderer2D
         // that will not be explicitly initialized here or updated later
         m_needUpdateVerticesLocal = true;
         m_needUpdateVerticesWorld = true;
+        m_cachedTransformChangeId = 0;
 
         m_texture = texture;
         m_width = width;
@@ -126,6 +127,11 @@ namespace Renderer2D
             m_needUpdateVerticesWorld = true;
         }
 
+        if (m_cachedTransformChangeId < Transformable2D::getChangeId())
+        {
+            m_needUpdateVerticesWorld = true;
+        }
+
         if (m_needUpdateVerticesLocal)
         {
             updateVerticesLocal();
@@ -182,12 +188,10 @@ namespace Renderer2D
         m_verticesWorld[2].textureIndex = float(m_textureIndex);
         m_verticesWorld[3].textureIndex = float(m_textureIndex);
 
-        m_needUpdateVerticesWorld = false;
-    }
+        // Cache change ID of the transform that we just used to update world vertices
+        m_cachedTransformChangeId = Transformable2D::getChangeId();
 
-    void Sprite::onTransformChanged()
-    {
-        m_needUpdateVerticesWorld = true;
+        m_needUpdateVerticesWorld = false;
     }
 
 } // namespace Renderer2D

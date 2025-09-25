@@ -120,7 +120,7 @@ namespace GleamHouse
 				);
 				m_fire[i].setColor(getRandomFireColor());
 				m_fire[i].setThickness(THICKNESS_FIRE_LINE);
-				m_fire[i].setPosition(m_base.getPosition());
+				m_fire[i].setParent(&m_base);
 			}
 		}
 
@@ -163,7 +163,6 @@ namespace GleamHouse
 		PK_ASSERT_QUICK(camera != nullptr);
 		m_lightProperties.position = camera->worldToWindowPosition(getFirePosition());
 
-		updateBase();
 		updateFire();
 
 		tSinceLastFireColorsUpdate += dt;
@@ -192,22 +191,6 @@ namespace GleamHouse
 			m_base.getPositionInWorld().x,
 			m_base.getPositionInWorld().y + SIZE_BASE.y / 2.0f + SIZE_FIRE.y / 2.0f
 		};
-	}
-
-	void Torch::updateBase()
-	{
-		if (m_player == nullptr)
-		{
-			return;
-		}
-
-		//m_base.setRotation(m_player->getRotation());
-
-		for (int i = 0; i < m_fire.size(); i++)
-		{
-			m_fire[i].setPosition(m_base.getPosition());
-			m_fire[i].setRotation(m_base.getRotation());
-		}
 	}
 
 	void Torch::updateFire()

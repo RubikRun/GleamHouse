@@ -57,6 +57,11 @@ namespace Renderer2D
         }
 #endif
 
+        if (m_cachedTransformChangeId < Transformable2D::getChangeId())
+        {
+            m_needUpdateVerticesWorld = true;
+        }
+
         if (m_needUpdateVerticesLocal)
         {
             updateVerticesLocal();
