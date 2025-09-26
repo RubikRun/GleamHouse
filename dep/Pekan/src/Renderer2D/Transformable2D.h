@@ -28,7 +28,7 @@ namespace Renderer2D
 		glm::vec2 getScale() const { return m_scale; }
 		glm::vec2 getScaleInWorld() const;
 
-		const glm::mat3 getLocalMatrix() const;
+		const glm::mat3& getLocalMatrix() const;
 		const glm::mat3 getWorldMatrix() const;
 
 		unsigned getChangeId() const;
@@ -40,6 +40,8 @@ namespace Renderer2D
 
 	private: /* functions */
 
+		void updateLocalMatrix() const;
+
 	private: /* variables */
 
 		glm::vec2 m_position = glm::vec2(-1.0f, -1.0f);
@@ -47,6 +49,10 @@ namespace Renderer2D
 		glm::vec2 m_scale = glm::vec2(-1.0f, -1.0f);
 
 		const Transformable2D* m_parent = nullptr;
+
+		mutable glm::mat3 m_localMatrix = glm::mat3(1.0f);
+
+		mutable bool m_isDirtyLocalMatrix = true;
 
 		mutable unsigned m_changeId = 0;
 		mutable unsigned m_cachedParentChangeId = 0;
