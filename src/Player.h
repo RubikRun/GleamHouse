@@ -51,6 +51,9 @@ namespace GleamHouse
 		bool hasTorch() const;
 		// Makes player drop the torch he's holding
 		void dropTorch();
+		// Checks if player is currently in a narrow tunnel.
+		// A "narrow tunnel" is a horizontal/vertical tunnel that is 1 tile wide.
+		bool isInNarrowTunnel(const Floor* floors, int floorsCount) const;
 
 		const Pekan::Renderer2D::Transformable2D* getTransformable2D() const { return static_cast<const Pekan::Renderer2D::Transformable2D*>(&m_sprite); }
 
@@ -59,6 +62,8 @@ namespace GleamHouse
 		// Checks if player can be moved by some delta vector,
 		// given a list of floor pieces where player is allowed to move.
 		bool canMoveBy(glm::vec2 delta, const Floor* floors, int floorsCount);
+		// Checks if a given point, in world space, is inside of the floor - inside one of the given floor pieces.
+		bool isPointInFloor(glm::vec2 point, const Floor* floors, int floorsCount) const;
 
 	private: /* variables */
 

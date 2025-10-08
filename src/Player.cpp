@@ -50,7 +50,10 @@ namespace GleamHouse
 		//m_sprite.setPosition({ 40.0f, -25.0f });
 
 		// Uncomment next line to spawn close to first torch
-		m_sprite.setPosition({ 16.0f, 9.0f });
+		//m_sprite.setPosition({ 16.0f, 9.0f });
+
+		// Uncomment next line to spawn close to second torch
+		//m_sprite.setPosition({ 30.0f, 20.0f });
 
 		return true;
 	}
@@ -105,6 +108,11 @@ namespace GleamHouse
 			{
 				m_sprite.move(delta);
 			}
+		}
+
+		if (isInNarrowTunnel(floors, floorsCount) && hasTorch())
+		{
+			dropTorch();
 		}
 
 		// Rotate sprite to point towards the mouse
@@ -167,6 +175,24 @@ namespace GleamHouse
 		PK_ASSERT_QUICK(hasTorch());
 		m_torch->onDroppedByPlayer();
 		m_torch = nullptr;
+	}
+
+	bool Player::isInNarrowTunnel(const Floor* floors, int floorsCount) const
+	{
+		const glm::vec2 playerPos = getPosition();
+		if (!isPointInFloor(playerPos, floors, floorsCount))
+		{
+			PK_LOG_WARNING("Checking if player is in a narrow tunnel but they're not even on the floor.", "GleamHouse");
+			return false;
+		}
+
+		const glm::vec2 leftPoint = playerPos + glm::vec2(-1.0f, 0.0f);
+		const glm::vec2 rightPoint = playerPos + glm::vec2(1.0f, 0.0f);
+		const glm::vec2 downPoint = playerPos + glm::vec2(0.0f, -1.0f);
+		const glm::vec2 upPoint = playerPos + glm::vec2(0.0f, 1.0f);
+
+		return (!isPointInFloor(leftPoint, floors, floorsCount) && !isPointInFloor(rightPoint, floors, floorsCount))
+		    || (!isPointInFloor(downPoint, floors, floorsCount) && !isPointInFloor(upPoint, floors, floorsCount));
 	}
 
 	bool Player::canMoveBy(glm::vec2 delta, const Floor* floors, int floorsCount)
@@ -244,6 +270,19 @@ namespace GleamHouse
 		}
 
 		return true;
+	}
+
+	bool Player::isPointInFloor(glm::vec2 point, const Floor* floors, int floorsCount) const
+	{
+		for (int i = 0; i < floorsCount; i++)
+		{
+			const BoundingBox floorBoundingBox = floors[i].getBoundingBox();
+			if (floorBoundingBox.isPointInside(point))
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 
 } // namespace GleamHouse
