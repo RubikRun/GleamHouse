@@ -32,21 +32,21 @@ namespace GleamHouse
 	static constexpr glm::ivec2 FLOORS_BOTTOM_LEFT_POSITIONS[GleamHouse_Scene::FLOORS_COUNT] =
 	{
 		{ -5, -5 }, { 5, -1 }, { 12, -10 }, { 14, -10 }, { 14, 8 }, { 16, 10 }, { 18, 14 }, { 20, 14 },
-		{ 44, 30 }, { 50, 14 }, { 54, 10 }, { 55, 20 }, { 64, 16 }, { 79, -10 }, { 80, -5 }, { 55, 10 },
-		{ 56, 5 }, { 58, 0 }, { 58, -6 }, { 54, -6 }, { 22, -36 },
+		{ 44, 30 }, { 50, 14 }, { 54, 10 }, { 55, 18 }, { 64, 16 }, { 72, -10 }, { 73, -5 }, { 55, 10 },
+		{ 56, 5 }, { 58, 2 }, { 58, -6 }, { 54, -6 }, { 22, -36 },
 	};
 	// Top-right positions of floor pieces
 	static constexpr glm::ivec2 FLOORS_TOP_RIGHT_POSITIONS[GleamHouse_Scene::FLOORS_COUNT] =
 	{
 		{ 5, 5 }, { 12, 1 }, { 14, 10 }, { 18, -8 }, { 24, 10 }, { 18, 16 }, { 20, 16 }, { 44, 32 },
-		{ 68, 32 }, { 51, 30 }, { 55, 30 }, { 80, 21 }, { 65, 20 }, { 80, 20 }, { 88, -4 }, { 56, 11 },
-		{ 70, 15 }, { 79, 1 }, { 59, 0 }, { 58, -5 }, { 54, 0 },
+		{ 68, 32 }, { 51, 30 }, { 55, 30 }, { 72, 19 }, { 65, 18 }, { 73, 20 }, { 78, -4 }, { 56, 11 },
+		{ 70, 15 }, { 72, 3 }, { 59, 2 }, { 58, -5 }, { 54, 0 },
 	};
 	// Color of bottom left tile of each floor piece
 	static constexpr bool FLOORS_IS_BOTTOM_LEFT_BLACK[GleamHouse_Scene::FLOORS_COUNT] =
 	{
 		true, true, true, true, true, true, true, true,
-		true, true, true, false, true, false, false, false,
+		true, true, true, false, true, true, true, false,
 		false, true, true, true, true
 	};
 
@@ -59,7 +59,9 @@ namespace GleamHouse
 	static constexpr glm::vec2 TORCHES_POSITIONS[GleamHouse_Scene::TORCHES_COUNT] =
 	{
 		{ 23.5f, 8.5f },
-		{ 28.5f, 18.5f },
+		{ 56.5f, 14.5f },
+		{ 69.5f, 5.5f },
+		{ 72.5f, -4.5f }
 	};
 
     bool GleamHouse_Scene::init()

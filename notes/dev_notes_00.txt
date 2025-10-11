@@ -600,6 +600,11 @@ You can switch between them by toggling this macro:
 Done.
 }
 
+
+----------
+01.10.2025
+----------
+
 {
 Next and final step is
     6. Create torches
@@ -629,4 +634,24 @@ Did that.
 Easy enough. It works!
 
 Done.
+}
+
+----------
+08.10.2025
+----------
+
+{
+We are done with the initial development plan described here:
+    dev_plan.txt
+
+One final thing to do is to setup torches in more meaningful positions
+so that gameplay makes sense.
+Also did some adjustments of the wall, again for better gameplay.
+
+Done.
+
+Calling this point of the game:
+    v0.1
+We might get back to this game later in Pekan development,
+but for now leaving it like this.
 }

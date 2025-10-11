@@ -52,7 +52,7 @@ namespace GleamHouse
 		// Uncomment next line to spawn close to first torch
 		//m_sprite.setPosition({ 16.0f, 9.0f });
 
-		// Uncomment next line to spawn close to second torch
+		// Uncomment next line to spawn in first big square
 		//m_sprite.setPosition({ 30.0f, 20.0f });
 
 		return true;

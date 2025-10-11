@@ -29,7 +29,7 @@ namespace GleamHouse
 		// Size of "finished level" rectangle, in NDC space
 		const glm::vec2 rectangleSize = { 5.8f * playerSize.x, 3.3f * playerSize.y };
 		// Position of "finished level" rectangle, in NDC space
-		const glm::vec2 rectanglePosition = { 0.21f, -0.17f };
+		const glm::vec2 rectanglePosition = { 1.9f * playerSize.x, -0.85f * playerSize.y };
 
 		float vertexData[16] =
 		{	// aPosition                                                                                   // aTexCoord

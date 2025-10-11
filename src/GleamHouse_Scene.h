@@ -39,7 +39,7 @@ namespace GleamHouse
 		// Number of floor pieces
 		static constexpr int FLOORS_COUNT = 21;
 		// Number of torches
-		static constexpr int TORCHES_COUNT = 2;
+		static constexpr int TORCHES_COUNT = 4;
 
 	private: /* functions */
 
